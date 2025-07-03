@@ -1,0 +1,130 @@
+@startuml
+
+package internal {
+
+    interface ParserI <<interface>> {
+        Read(in string) Interface[]
+    }
+
+    package parser {
+        class Parser {
+            + Read(in string, names ...string) Interface[]
+        }
+        note top of Parser: Reads packages\nand extracts interfaces
+
+        class TagScanner {}
+        note top of TagScanner: Scans for tags\nin interfaces/methods
+
+        class Validator
+        note top of Validator: Validates structure\nand tag correctness
+
+        Parser .down.|> ParserI
+        Parser -up-> TagScanner
+        Parser -up-> Validator
+    }
+
+    interface DefinerI <<interface>> {
+        Define(out string, intrs Interface[]) error
+    }
+
+    package definer {
+        class Definer {
+            + Define(out string, intrs Interface[]) error
+        }
+        note top of Definer: Generates\nwrappers and proxy methods
+
+        class ProxyGenerator
+        note top of ProxyGenerator: Builds code\nfor logging/tracing wrappers
+
+        class Emitter
+        note top of Emitter: Writes generated\nGo files to disk
+
+        Definer .down.|> DefinerI
+        Definer -up-> ProxyGenerator
+        Definer -up-> Emitter
+    }
+
+    package generator {
+        class Generator
+    }
+
+    note top of Generator: Coordinates\nthe whole generation process
+
+    Generator -up-> ParserI
+    Generator -up-> DefinerI
+}
+
+package config {
+    class Config {
+        - logger: Template
+        - tracer: Template
+        - retrier: Template
+        - paths: Path[]
+    }
+
+    class Template {
+        - type: string
+        - pattern: byte[]
+    }
+
+    class Path {
+        - from: string
+        - to: string
+    }
+
+    Config -down-> Template
+    Config -down--> Path
+}
+
+package entity {
+    enum ProxyType {
+        Logger
+        Tracer
+        Retrier
+    }
+
+    enum ProxyLogger {
+        Zap
+    }
+
+    enum ProxyTracer {
+        OpenTelemetry
+    }
+
+    class Interface {
+        - imports: string[]
+        - name: string
+        - functions: Function[]
+    }
+
+    class Function {
+        - name: string
+        - signature: string
+        - fields: Map<string, Field>
+    }
+
+    class Field {
+        - type: string
+        - name: string
+        - value: string
+    }
+
+    Interface -down-> Function
+    Function -down-> Field
+}
+
+package template {
+    class Logger {}
+    class Tracer {}
+    class Retrier {}
+}
+
+package init {
+    class Init {
+        + init(): Generator
+    }
+
+    Init -up-> internal.generator.Generator
+}
+
+@enduml
