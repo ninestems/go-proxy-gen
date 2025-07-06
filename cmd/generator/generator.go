@@ -34,15 +34,15 @@ func main() {
 
 	flag.Parse()
 
-	log.Printf("Build version: %s", BuildVersion)
-	log.Printf("Build date: %s", BuildDate)
+	log.Printf("build version: %s", BuildVersion)
+	log.Printf("build date: %s", BuildDate)
 
 	gen := builder.Build(inPath, outPath, strings.Split(ifaces, ","), strings.Split(types, ","))
 
-	log.Printf("Generate is started")
+	log.Printf("generate is started")
 	if err := gen.Generate(); err != nil {
-		log.Fatalf("Generate ends with error: %v", err)
+		log.Fatalf("generate ends with error: %v", err)
 	}
 
-	log.Printf("Generate is done")
+	log.Printf("generate is done")
 }

@@ -11,8 +11,8 @@ var _ internal.ParserI = (*Parser)(nil)
 // Parser helps parse source files and compacts them into a specialized markdown format.
 type Parser struct {
 	opt       options
-	scanner   any
-	validator any
+	scanner   internal.ScannerI
+	validator internal.ValidatorI
 }
 
 // New builds new instance of Parser.
