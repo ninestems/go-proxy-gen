@@ -1,69 +1,117 @@
 @startuml
 
-package internal {
-    package config {
-        class Config {
-            - logger: Template
-            - tracer: Template
-            - retrier: Template
-            - paths: Path[]
-        }
-
-        class Template {
-            - type: string
-            - pattern: byte[]
-        }
-
-        class Path {
-            - from: string
-            - to: string
-        }
-
-        Config -down-> Template
-        Config -down--> Path
+package config {
+    class Config {
+        - logger: Template
+        - tracer: Template
+        - retrier: Template
+        - path: Path
+        - ifaces: string[]
     }
 
+    class Template {
+        custom: string
+        package: string
+        function: string
+    }
+
+    class Path {
+        - from: string
+        - to: string
+    }
+
+    Config -down--> Path
+    Config -down--> Template
+}
+
+package builder {
+    class "build()" as buildFn << (F, #FFDD99) >>
+}
+
+builder -up> config.Config
+
+package internal {
 
     interface ParserI <<interface>> {
-        Read(in string) Interface[]
+        Read(in string, names ...string): Interface[]
+    }
+
+    interface DefinerI <<interface>> {
+        Define(out string, in Interface[]): error
+    }
+
+    interface ScannerI <<interface>> {
+        Scan(in string, names ...string): Interface[]
+    }
+
+    interface ValidatorI <<interface>> {
+        Validate(in Interface[]): error
+    }
+
+    interface ProxierI <<interface>> {
+        Define(in Interface): byte[]
+    }
+
+    interface EmitterI <<interface>> {
+        Write(file byte[]): error
+    }
+
+    package scanner {
+        class Scanner {
+            + Scan(in string, names ...string): Interface[]
+        }
+        note top of Scanner: Scans for tags\nin interfaces/methods
+
+        Scanner .down.|> ScannerI
+    }
+
+    package validator {
+        class Validator {
+            + Validate(in Interface[]): error
+        }
+        note top of Validator: Validates structure\nand tag correctness
+
+        Validator .down.|> ValidatorI
     }
 
     package parser {
         class Parser {
-            + Read(in string, names ...string) Interface[]
+            + Read(in string, names ...string): Interface[]
         }
         note top of Parser: Reads packages\nand extracts interfaces
 
-        class Scanner {}
-        note top of Scanner: Scans for tags\nin interfaces/methods
-
-        class Validator
-        note top of Validator: Validates structure\nand tag correctness
-
         Parser .down.|> ParserI
-        Parser -up-> Scanner
-        Parser -up-> Validator
+        Parser -up-> ScannerI
+        Parser -up-> ValidatorI
     }
 
-    interface DefinerI <<interface>> {
-        Define(out string, intrs Interface[]) error
+    package emitter {
+        class Emitter {
+            + Write(file byte[]): error
+        }
+        note top of Emitter: Writes generated\nGo files to disk
+
+        Emitter .down.|> EmitterI
+    }
+
+    package proxier {
+        class Proxier {
+            + Define(in Interface): byte[]
+        }
+        note top of Proxier: Builds code\nfor logging/tracing wrappers
+
+        Proxier .down.|> ProxierI
     }
 
     package definer {
         class Definer {
-            + Define(out string, intrs Interface[]) error
+            + Define(out string, in Interface[]): error
         }
         note top of Definer: Generates\nwrappers and proxy methods
 
-        class Proxier
-        note top of Proxier: Builds code\nfor logging/tracing wrappers
-
-        class Emitter
-        note top of Emitter: Writes generated\nGo files to disk
-
         Definer .down.|> DefinerI
-        Definer -up-> Proxier
-        Definer -up-> Emitter
+        Definer -up-> ProxierI
+        Definer -up-> EmitterI
     }
 
     package generator {
@@ -74,60 +122,47 @@ package internal {
 
     Generator -up-> ParserI
     Generator -up-> DefinerI
-}
 
-package entity {
-    enum ProxyType {
-        Logger
-        Tracer
-        Retrier
+    package template {
+        class Logger {
+            + GetPackage(): string
+            + GetFunction(): string
+        }
+
+        class Tracer {
+            + GetPackage(): string
+            + GetFunction(): string
+        }
+
+        class Retrier {
+            + GetPackage(): string
+            + GetFunction(): string
+        }
+
+        note right of Logger
+            Loads template from file\n(if provided in config)
+            or uses default embedded template
+        end note
+
+        note right of Tracer
+            Loads template from file\n(if provided in config)
+            or uses default embedded template
+        end note
+
+        note right of Retrier
+            Loads template from file\n(if provided in config)
+            or uses default embedded template
+        end note
     }
-
-    enum ProxyLogger {
-        Zap
-    }
-
-    enum ProxyTracer {
-        OpenTelemetry
-    }
-
-    class Interface {
-        - imports: string[]
-        - name: string
-        - functions: Function[]
-    }
-
-    class Function {
-        - name: string
-        - signature: string
-        - fields: Map<string, Field>
-    }
-
-    class Field {
-        - type: string
-        - name: string
-        - value: string
-    }
-
-    Interface -down-> Function
-    Function -down-> Field
-}
-
-package template {
-    class Logger {}
-    class Tracer {}
-    class Retrier {}
 }
 
 package cmd {
     package generator {
-        class Init {
-            + init(): Generator
-        }
-
-        Init -up-> internal.generator.Generator
     }
 
 }
+    cmd.generator -up--> internal.generator.Generator
+    cmd.generator --up----> builder.buildFn
+
 
 @enduml
