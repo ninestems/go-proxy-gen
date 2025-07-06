@@ -1,0 +1,53 @@
+// Package internal contains all internal app logic.
+package internal
+
+import (
+	"go-proxy-gen/entity"
+)
+
+// ParserI defines interface for parsing Go packages
+// and extracting interface declarations from source code.
+type ParserI interface {
+	// Parse parses the specified path and returns a list of interfaces
+	// filtered by optional names (if provided).
+	Parse() ([]entity.Interface, error)
+}
+
+// ScannerI defines interface for scanning Go interfaces
+// and their methods for embedded proxy tags.
+type ScannerI interface {
+	// Scan scans the provided path and returns interface descriptions
+	// with parsed metadata such as proxy tags.
+	Scan(path string, names ...string) ([]entity.Interface, error)
+}
+
+// ValidatorI defines interface for validating correctness of
+// parsed interface metadata and tag structure.
+type ValidatorI interface {
+	// Validate checks a list of interfaces for tag format, structural issues,
+	// and semantic correctness before code generation.
+	Validate(input []entity.Interface) error
+}
+
+// DefinerI defines interface for generating proxy implementations
+// (e.g., logging, tracing) based on parsed metadata.
+type DefinerI interface {
+	// Define receives a list of interfaces and output path,
+	// then generates proxy wrappers and writes them to disk.
+	Define(out string, interfaces []entity.Interface) error
+}
+
+// ProxierI defines interface for building in-memory proxy code
+// for a single interface.
+type ProxierI interface {
+	// Define generates Go source code for a proxy wrapper
+	// for a single interface and returns the code as bytes.
+	Define(input entity.Interface) ([]byte, error)
+}
+
+// EmitterI defines interface for persisting generated code
+// to disk or another target.
+type EmitterI interface {
+	// Write takes a byte slice and writes it to the specified file path.
+	Write(file []byte) error
+}
