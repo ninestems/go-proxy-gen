@@ -34,7 +34,7 @@ builder -up> config.Config
 package internal {
 
     interface ParserI <<interface>> {
-        Read(in string, names ...string): Interface[]
+        Read(): Package
     }
 
     interface DefinerI <<interface>> {
@@ -46,7 +46,7 @@ package internal {
     }
 
     interface ValidatorI <<interface>> {
-        Validate(in Interface[]): error
+        Validate(in Package): error
     }
 
     interface ProxierI <<interface>> {
@@ -59,7 +59,7 @@ package internal {
 
     package scanner {
         class Scanner {
-            + Scan(in string, names ...string): Interface[]
+            + Scan(in string, names ...string): Package
         }
         note top of Scanner: Scans for tags\nin interfaces/methods
 
@@ -68,7 +68,7 @@ package internal {
 
     package validator {
         class Validator {
-            + Validate(in Interface[]): error
+            + Validate(in Package): error
         }
         note top of Validator: Validates structure\nand tag correctness
 
@@ -77,7 +77,7 @@ package internal {
 
     package parser {
         class Parser {
-            + Read(in string, names ...string): Interface[]
+            + Read(): Package
         }
         note top of Parser: Reads packages\nand extracts interfaces
 
@@ -157,13 +157,56 @@ package internal {
     }
 }
 
+package entity {
+    enum ProxyType {
+        Logger
+        Tracer
+        Retrier
+    }
+
+    enum ProxyLogger {
+        Zap
+    }
+
+    enum ProxyTracer {
+        OpenTelemetry
+    }
+
+    class Package {
+        - name: string
+        - imports: string[]
+        - interfaces: Interface[]
+    }
+
+    class Interface {
+        - name: string
+        - functions: Function[]
+    }
+
+    class Function {
+        - name: string
+        - signature: string
+        - fields: Field[]
+    }
+
+    class Field {
+        - type: string
+        - name: string
+        - value: string
+    }
+
+    Package -down->Interface
+    Interface -down-> Function
+    Function -down-> Field
+}
+
 package cmd {
     package generator {
     }
-
 }
-    cmd.generator -up--> internal.generator.Generator
-    cmd.generator --up----> builder.buildFn
+
+cmd.generator -up--> internal.generator.Generator
+cmd.generator --up----> builder.buildFn
 
 
 @enduml

@@ -18,7 +18,7 @@ type ParserI interface {
 type ScannerI interface {
 	// Scan scans the provided path and returns interface descriptions
 	// with parsed metadata such as proxy tags.
-	Scan(path string, names ...string) ([]entity.Interface, error)
+	Scan(path string, names ...string) (*entity.Package, error)
 }
 
 // ValidatorI defines interface for validating correctness of
