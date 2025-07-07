@@ -2,7 +2,6 @@
 package parser
 
 import (
-	"go-proxy-gen/entity"
 	"go-proxy-gen/internal"
 )
 
@@ -23,13 +22,7 @@ func New(opts ...Option) *Parser {
 	}
 	return &Parser{
 		opt:       cfg,
-		scanner:   nil,
-		validator: nil,
+		scanner:   cfg.scanner,
+		validator: cfg.validator,
 	}
-}
-
-// Parse parses the specified path and returns a list of interfaces
-// filtered by optional names (if provided).
-func (p *Parser) Parse() ([]entity.Interface, error) {
-	return nil, nil
 }

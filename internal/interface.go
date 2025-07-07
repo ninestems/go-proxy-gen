@@ -10,7 +10,7 @@ import (
 type ParserI interface {
 	// Parse parses the specified path and returns a list of interfaces
 	// filtered by optional names (if provided).
-	Parse() ([]entity.Interface, error)
+	Parse() (*entity.Package, error)
 }
 
 // ScannerI defines interface for scanning Go interfaces
@@ -26,7 +26,7 @@ type ScannerI interface {
 type ValidatorI interface {
 	// Validate checks a list of interfaces for tag format, structural issues,
 	// and semantic correctness before code generation.
-	Validate(input []entity.Interface) error
+	Validate(in *entity.Package) error
 }
 
 // DefinerI defines interface for generating proxy implementations
@@ -42,7 +42,7 @@ type DefinerI interface {
 type ProxierI interface {
 	// Define generates Go source code for a proxy wrapper
 	// for a single interface and returns the code as bytes.
-	Define(input entity.Interface) ([]byte, error)
+	Define(in *entity.Interface) ([]byte, error)
 }
 
 // EmitterI defines interface for persisting generated code

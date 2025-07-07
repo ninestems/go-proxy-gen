@@ -25,23 +25,23 @@ func tag(in []string) *entity.Tag {
 	var out entity.Tag
 	switch in[0] {
 	case "log":
-		out.Type = entity.ProxyTypeLogger
+		out.SetType(entity.ProxyTypeLogger)
 	case "trace":
-		out.Type = entity.ProxyTypeTracer
+		out.SetType(entity.ProxyTypeTracer)
 	case "retry":
-		out.Type = entity.ProxyTypeRetrier
+		out.SetType(entity.ProxyTypeRetrier)
 	}
 
 	data := strings.Split(in[1], "::")
 	switch len(data) {
 	case 2:
-		out.Name = data[0]
-		out.Alias = data[1]
-		out.Path = data[1]
+		out.SetName(data[0])
+		out.SetAlias(data[1])
+		out.SetPath(data[1])
 	case 3:
-		out.Name = data[0]
-		out.Alias = data[1]
-		out.Path = data[2]
+		out.SetName(data[0])
+		out.SetAlias(data[1])
+		out.SetPath(data[2])
 	}
 
 	return &out
@@ -75,15 +75,16 @@ func tags(in *ast.CommentGroup) []*entity.Tag {
 
 // parameter extracts parameter from input/output list of function.
 func parameter(in *ast.Field) *entity.Parameter {
-	var out = entity.Parameter{Name: in.Names[0].Name}
+	var out entity.Parameter
+	out.SetName(in.Names[0].Name)
 	switch exp := in.Type.(type) {
 	case *ast.Ident:
-		out.Source = exp.Name
+		out.SetSource(exp.Name)
 	case *ast.SelectorExpr:
-		out.Source = fmt.Sprintf("%s.%s", exp.X.(*ast.Ident), exp.Sel.Name)
+		out.SetSource(fmt.Sprintf("%s.%s", exp.X.(*ast.Ident), exp.Sel.Name))
 	case *ast.StarExpr:
 		selector := exp.X.(*ast.SelectorExpr)
-		out.Source = fmt.Sprintf("%s.%s", selector.X.(*ast.Ident), selector.Sel.Name)
+		out.SetSource(fmt.Sprintf("%s.%s", selector.X.(*ast.Ident), selector.Sel.Name))
 	}
 
 	return &out
@@ -106,12 +107,12 @@ func function(in *ast.Field) *entity.Function {
 		return nil
 	}
 
-	var out = entity.Function{
-		Name:   in.Names[0].Name,
-		Input:  parameters(funcType.Params.List),
-		Output: parameters(funcType.Results.List),
-		Tags:   tags(in.Doc),
-	}
+	var out entity.Function
+
+	out.SetName(in.Names[0].Name)
+	out.SetInput(parameters(funcType.Params.List))
+	out.SetOutput(parameters(funcType.Results.List))
+	out.SetTags(tags(in.Doc))
 
 	return &out
 }
@@ -129,13 +130,14 @@ func functions(in []*ast.Field) []*entity.Function {
 
 // iface extracts interface from ast tree.
 func iface(in *ast.TypeSpec) *entity.Interface {
-	var out = entity.Interface{Name: in.Name.Name}
+	var out entity.Interface
+	out.SetName(in.Name.Name)
 	ifa, ok := in.Type.(*ast.InterfaceType)
 	if !ok {
 		return nil
 	}
 
-	out.Functions = functions(ifa.Methods.List)
+	out.SetFunctions(functions(ifa.Methods.List))
 
 	return &out
 }
@@ -186,10 +188,10 @@ func imports(in []*ast.ImportSpec) []*entity.Import {
 	for _, imp := range in {
 		var el entity.Import
 		if imp.Name != nil {
-			el.Alias = imp.Name.Name
+			el.SetAlias(imp.Name.Name)
 		}
 
-		el.Source = imp.Path.Value
+		el.SetSource(imp.Path.Value)
 
 		out = append(out, &el)
 	}

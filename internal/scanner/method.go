@@ -15,11 +15,11 @@ func (s *Scanner) Scan(in string, names ...string) (*entity.Package, error) {
 		return nil, err
 	}
 
-	out.Name = node.Name.Name
-	out.Interfaces = slices.DeleteFunc(declarations(node.Decls), func(in *entity.Interface) bool {
-		return !slices.Contains(names, in.Name) && len(names) > 0
-	})
-	out.Imports = imports(node.Imports)
+	out.SetName(node.Name.Name)
+	out.SetInterfaces(slices.DeleteFunc(declarations(node.Decls), func(in *entity.Interface) bool {
+		return !slices.Contains(names, in.Name()) && len(names) > 0
+	}))
+	out.SetImports(imports(node.Imports))
 
 	return &out, nil
 }
