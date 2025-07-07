@@ -22,17 +22,17 @@ func Build(in, out string, ifaces, types []string) *generator.Generator {
 	log.Printf("proxy layers types: %v", types)
 
 	log.Printf("initializing scanner")
-	scanr := scanner.New()
+	scnner := scanner.New()
 
 	log.Printf("initializing validator")
-	valid := validator.New()
+	vldtr := validator.New()
 
 	log.Printf("initializing parser")
 	pars := parser.New(
-		parser.WithInPath(""),
-		parser.WithIfaces(nil),
-		parser.WithScanner(scanr),
-		parser.WithValidator(valid),
+		parser.WithInPath(in),
+		parser.WithIfaces(ifaces),
+		parser.WithScanner(scnner),
+		parser.WithValidator(vldtr),
 	)
 
 	log.Printf("initializing proxier")

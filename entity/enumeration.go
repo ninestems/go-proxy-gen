@@ -1,15 +1,17 @@
 package entity
 
 // ProxyType describe end forms for proxy layers.
-type ProxyType string
+type ProxyType uint32
 
 const (
+	// ProxyTypeUndefined for undefined type.
+	ProxyTypeUndefined ProxyType = iota
 	// ProxyTypeLogger for logger.
-	ProxyTypeLogger ProxyType = "logger"
+	ProxyTypeLogger
 	// ProxyTypeTracer for tracer.
-	ProxyTypeTracer ProxyType = "tracer"
+	ProxyTypeTracer
 	// ProxyTypeRetrier for retrier.
-	ProxyTypeRetrier ProxyType = "retrier"
+	ProxyTypeRetrier
 )
 
 // ProxyLogger describe various logger types for proxy logger.
