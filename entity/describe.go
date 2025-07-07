@@ -8,7 +8,7 @@ type Package struct {
 	interfaces []*Interface
 }
 
-// GetName returns the name of the package.
+// Name returns the name of the package.
 func (p *Package) Name() string {
 	return p.name
 }
