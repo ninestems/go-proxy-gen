@@ -2,7 +2,6 @@
 package proxier
 
 import (
-	"go-proxy-gen/entity"
 	"go-proxy-gen/internal"
 )
 
@@ -10,16 +9,24 @@ var _ internal.ProxierI = (*Proxier)(nil)
 
 // Proxier describes logic generate of proxy layers
 type Proxier struct {
-	path string
+	// lt logger templater.
+	lt internal.TemplaterI
+	// tt tracer templater.
+	tt internal.TemplaterI
+	// rt retry templater.
+	rt internal.TemplaterI
 }
 
 // New builds new instance of Emitter.
-func New() *Proxier {
-	return &Proxier{}
-}
+func New(opts ...Option) *Proxier {
+	var cfg options
+	for _, opt := range opts {
+		opt(&cfg)
+	}
 
-// Define generates Go source code for a proxy wrapper
-// for a single interface and returns the code as bytes.
-func (p Proxier) Define(in *entity.Interface) ([]byte, error) {
-	return nil, nil
+	return &Proxier{
+		lt: cfg.lt,
+		tt: cfg.tt,
+		rt: cfg.rt,
+	}
 }

@@ -22,33 +22,94 @@ func file(filename string) (*ast.File, error) {
 
 // tag extracts custom tag from one line of comment.
 func tag(in []string) *entity.Tag {
-	var out entity.Tag
+	var (
+		proxyType     entity.ProxyType
+		parameterType entity.TagType
+		alias         string
+		name          string
+		path          string
+		key           string
+	)
+
 	switch in[0] {
 	case "log":
-		out.SetType(entity.ProxyTypeLogger)
+		proxyType = entity.ProxyTypeLogger
 	case "trace":
-		out.SetType(entity.ProxyTypeTracer)
+		proxyType = entity.ProxyTypeTracer
 	case "retry":
-		out.SetType(entity.ProxyTypeRetrier)
+		proxyType = entity.ProxyTypeRetrier
 	}
 
 	data := strings.Split(in[1], "::")
-	switch len(data) {
-	case 2:
-		out.SetName(data[0])
-		out.SetAlias(data[1])
-		out.SetPath(data[1])
-	case 3:
-		out.SetName(data[0])
-		out.SetAlias(data[1])
-		out.SetPath(data[2])
+	switch data[0] {
+	case "ctx":
+		parameterType = entity.TagTypeContext
+		alias, key = extractCtx(data)
+	case "input":
+		parameterType = entity.TagTypeInput
+		alias, name, path, key = extractIO(data)
+	case "output":
+		parameterType = entity.TagTypeOutput
+		alias, name, path, key = extractIO(data)
 	}
 
-	return &out
+	out := entity.NewTag(
+		proxyType,
+		parameterType,
+		alias,
+		name,
+		path,
+		key,
+	)
+
+	return out
+}
+
+// extractCtx extracts data for context tags.
+func extractCtx(in []string) (alias, key string) {
+	switch len(in) {
+	case 2:
+		alias = in[1]
+		key = in[1]
+	case 3:
+		alias = in[1]
+		key = in[2]
+	}
+
+	return
+}
+
+func extractIO(in []string) (alias, name, path, key string) {
+	switch len(in) {
+	case 3:
+		alias = in[2]
+		name, path = extractPath(in[1])
+		key = in[2]
+	case 4:
+		alias = in[1]
+		name, path = extractPath(in[2])
+		key = in[3]
+	}
+
+	return
+}
+
+func extractPath(in string) (name, path string) {
+	data := strings.Split(in, ":")
+	path = data[0]
+	if len(data) > 1 {
+		name, path = data[0], data[1]
+	}
+
+	return
 }
 
 // tags extracts custom tags from all lines of comments.
 func tags(in *ast.CommentGroup) []*entity.Tag {
+	if in == nil {
+		return nil
+	}
+
 	var (
 		out   = make([]*entity.Tag, 0, len(in.List))
 		found = false
@@ -106,23 +167,30 @@ func exprToParameter(in ast.Expr) string {
 }
 
 // parameter extracts parameter from input/output list of function.
-func parameter(in *ast.Field) *entity.Parameter {
-	var out entity.Parameter
-
+func parameter(in *ast.Field, typ entity.ParameterType) *entity.Parameter {
+	var (
+		out  *entity.Parameter
+		name = ""
+	)
 	if in.Names != nil {
-		out.SetName(in.Names[0].Name)
+		name = in.Names[0].Name
 	}
 
-	out.SetSource(exprToParameter(in.Type))
+	switch typ {
+	case entity.ParameterTypeInput:
+		out = entity.NewInputParameter(name, exprToParameter(in.Type))
+	case entity.ParameterTypeOutput:
+		out = entity.NewOutputParameter(name, exprToParameter(in.Type))
+	}
 
-	return &out
+	return out
 }
 
 // parameter extracts all parameter from input/output list of function.
-func parameters(in []*ast.Field) []*entity.Parameter {
+func parameters(in []*ast.Field, typ entity.ParameterType) []*entity.Parameter {
 	var out = make([]*entity.Parameter, 0, len(in))
 	for _, field := range in {
-		out = append(out, parameter(field))
+		out = append(out, parameter(field, typ))
 	}
 
 	return out
@@ -135,14 +203,20 @@ func function(in *ast.Field) *entity.Function {
 		return nil
 	}
 
-	var out entity.Function
+	var (
+		input  []*entity.Parameter
+		output []*entity.Parameter
+	)
 
-	out.SetName(in.Names[0].Name)
-	out.SetInput(parameters(funcType.Params.List))
-	out.SetOutput(parameters(funcType.Results.List))
-	out.SetTags(tags(in.Doc))
+	if funcType.Params != nil && len(funcType.Params.List) > 0 {
+		input = parameters(funcType.Params.List, entity.ParameterTypeInput)
+	}
 
-	return &out
+	if funcType.Results != nil && len(funcType.Results.List) > 0 {
+		output = parameters(funcType.Results.List, entity.ParameterTypeOutput)
+	}
+
+	return entity.NewFunction(in.Names[0].Name, input, output, tags(in.Doc))
 }
 
 // functions extracts functions from ast tree.
@@ -158,16 +232,12 @@ func functions(in []*ast.Field) []*entity.Function {
 
 // iface extracts interface from ast tree.
 func iface(in *ast.TypeSpec) *entity.Interface {
-	var out entity.Interface
-	out.SetName(in.Name.Name)
 	ifa, ok := in.Type.(*ast.InterfaceType)
 	if !ok {
 		return nil
 	}
 
-	out.SetFunctions(functions(ifa.Methods.List))
-
-	return &out
+	return entity.NewInterface(in.Name.Name, functions(ifa.Methods.List))
 }
 
 // ifaces extracts interfaces from ast tree.
@@ -214,14 +284,12 @@ func declarations(in []ast.Decl) []*entity.Interface {
 func imports(in []*ast.ImportSpec) []*entity.Import {
 	var out = make([]*entity.Import, 0, len(in))
 	for _, imp := range in {
-		var el entity.Import
+		alias := ""
 		if imp.Name != nil {
-			el.SetAlias(imp.Name.Name)
+			alias = imp.Name.Name
 		}
 
-		el.SetSource(imp.Path.Value)
-
-		out = append(out, &el)
+		out = append(out, entity.NewImport(alias, imp.Path.Value))
 	}
 
 	return out

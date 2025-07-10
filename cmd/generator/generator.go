@@ -23,10 +23,10 @@ func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.LUTC | log.Lshortfile)
 
 	var (
-		inPath  string
-		outPath string
-		ifaces  string
-		types   string
+		inPathFlg  string
+		outPathFlg string
+		ifacesFlg  string
+		typesFlg   string
 	)
 
 	// default: use GOFILE if not explicitly set
@@ -35,10 +35,10 @@ func main() {
 		defaultIn = "." // fallback
 	}
 
-	flag.StringVar(&inPath, "in", defaultIn, "Path to source package or file (default from $GOFILE)")
-	flag.StringVar(&outPath, "out", "./proxy", "Output directory for generated files")
-	flag.StringVar(&ifaces, "interface", "", "Comma-separated list of interface names")
-	flag.StringVar(&types, "types", "log,trace,retry", "Comma-separated list of proxy types (log,trace,retry)")
+	flag.StringVar(&inPathFlg, "in", defaultIn, "Source to source package or file (default from $GOFILE)")
+	flag.StringVar(&outPathFlg, "out", "./proxy", "Output directory for generated files")
+	flag.StringVar(&ifacesFlg, "interface", "", "Comma-separated list of interface names")
+	flag.StringVar(&typesFlg, "typesFlg", "log,trace,retry", "Comma-separated list of proxy typesFlg (log,trace,retry)")
 
 	flag.Parse()
 
@@ -46,16 +46,32 @@ func main() {
 	log.Printf("build date: %s", BuildDate)
 
 	// make paths absolute
-	inPath, err := filepath.Abs(inPath)
+	in, err := filepath.Abs(inPathFlg)
 	if err != nil {
 		log.Fatalf("invalid input path: %v", err)
 	}
-	outPath, err = filepath.Abs(outPath)
+
+	out, err := filepath.Abs(outPathFlg)
 	if err != nil {
 		log.Fatalf("invalid output path: %v", err)
 	}
 
-	gen := builder.Build(inPath, outPath, strings.Split(ifaces, ","), strings.Split(types, ","))
+	ifaces := strings.Split(ifacesFlg, ",")
+	if len(ifaces) == 1 && ifaces[0] == "" {
+		ifaces = []string{}
+	}
+
+	types := strings.Split(typesFlg, ",")
+	if len(types) == 1 && types[0] == "" {
+		types = []string{}
+	}
+
+	gen := builder.Build(
+		in,
+		out,
+		ifaces,
+		types,
+	)
 
 	log.Printf("generate is started")
 	if err = gen.Generate(); err != nil {
@@ -64,4 +80,3 @@ func main() {
 
 	log.Printf("generate is done")
 }
-

@@ -1,10 +1,10 @@
+// Package config describe how app must be configured.
 package config
 
 // Template describes a configuration template for logger, tracer or retrier.
 type Template struct {
-	Custom   string // path to custom template directory (optional)
-	Package  string // Go package to import for the template
-	Function string // function name to call in template
+	Custom string // path to custom template directory (optional)
+	Value  string // template value
 }
 
 // Path describes source and destination folders.

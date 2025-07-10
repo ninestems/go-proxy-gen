@@ -34,20 +34,26 @@ type ValidatorI interface {
 type DefinerI interface {
 	// Define receives a list of interfaces and output path,
 	// then generates proxy wrappers and writes them to disk.
-	Define(out string, interfaces []entity.Interface) error
+	Define(in *entity.Package) error
 }
 
 // ProxierI defines interface for building in-memory proxy code
 // for a single interface.
 type ProxierI interface {
-	// Define generates Go source code for a proxy wrapper
+	// DefineLogger generates Go source code for a proxy logger wrapper
 	// for a single interface and returns the code as bytes.
-	Define(in *entity.Interface) ([]byte, error)
+	DefineLogger(in *entity.Package) ([]byte, error)
 }
 
 // EmitterI defines interface for persisting generated code
 // to disk or another target.
 type EmitterI interface {
 	// Write takes a byte slice and writes it to the specified file path.
-	Write(file []byte) error
+	Write(name string, file []byte) error
+}
+
+// TemplaterI defines how logic extract template for next generation.
+type TemplaterI interface {
+	// Template returns template for logger.
+	Template() string
 }

@@ -33,10 +33,12 @@ example configuration for function from interface
 // 
 // goproxygen: 
 //  log ctx::traceID::trace_id
-//  log input::F::input.F
-//  log output::out::out.D
-//  trace input::F::input.F
-//  trace output::F::input.D
+//  log input::NAME::input entity.Interface::Name()
+//  log output::FUNCS::input entity.Interface::Functions()
+//  log output::error::error.Error()
+//  trace input::NAME::input entity.Interface::Name()
+//  trace output::FUNCS::input entity.Interface::Functions()
+//  trace output::error::error.Error()
 func Name(ctx context.Context, input *Input) (*Output, error)
 ```
 1. Text between `goproxygen:` and `func ...` line describes options for the proxy generator.  
@@ -44,18 +46,34 @@ func Name(ctx context.Context, input *Input) (*Output, error)
 3. `goproxygen:` must have one space after `//`.  
 4. Each option line must have two spaces after `//`.  
 
-### Option specification
-- `type ctx::[name::]key` - extract a value from context.Context for logging/tracing.  
-- `type input::[name::]path.field` - extract a value from input parameters.
-- `type output::[out::]path.field` - extract a value from output values.
+### Option Specification
 
-`type` can be log/trace/retry.   
-`ctx` means the value is taken from context.Context.     
-`input` means the value is taken from function input parameters.
-`output` means the value is taken from function return values.  
-`name` is optional – sets the key name in logs/traces.  
-`key` is the context key.  
-`path.field` is the full path to the field inside a struct.  
+Each directive describes a logging, tracing, or retry instruction based on function context, inputs, or outputs.
+
+**Format**:  
+`type section::label::path::accessor`
+
+#### Fields
+
+| Field      | Description                                                                                                                |
+|------------|----------------------------------------------------------------------------------------------------------------------------|
+| `type`     | One of: `log`, `trace`, `retry`                                                                                            |
+| `section`  | Source of the data: `ctx`, `input`, or `output`                                                                            |
+| `label`    | Optional name used in logs/traces (e.g., `traceID`, `error`)                                                               |
+| `path`     | Full type path, or a combination with name of the parameter(e.g. `entity.Interface` or `input entity.Interface`) |
+| `accessor` | Field or method to extract value (e.g., `Name()`, `Error()`, `Meta.ID`)                                                    |
+
+Notes:  
+- `ctx` uses only `label::key` (no path or accessor)
+- `input` and `output` support access to nested fields or methods
+-  One directive per line
+
+#### Parsing Notes
+- each directive defines a single log/trace operation.
+- label is used as a key for structured output (e.g., logs, trace spans).
+- path supports fallback matching even when parameters are unnamed.
+- accessor may be a field (.Field) or method (.Method()).
+- designed to be readable, explicit, and compatible with common Go interfaces.
 
 ### Examples
 - [logger example](doc/logger.md)

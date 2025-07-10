@@ -85,20 +85,57 @@ func validateFunction(in *entity.Function) error {
 
 // validateTag validate tag info.
 func validateTag(in *entity.Tag) error {
-	if in.Type() == entity.ProxyTypeUndefined {
-		return errors.New("invalid proxy type")
+	switch in.TagType() {
+	case entity.TagTypeContext:
+		return validateCtxTag(in)
+	case entity.TagTypeInput, entity.TagTypeOutput:
+		return validateIOTag(in)
+	case entity.TagTypeUndefined:
+		return errors.New("invalid tag type")
 	}
 
-	if in.Name() == "" {
-		return errors.New("empty tag name")
+	return nil
+}
+
+func validateIOTag(in *entity.Tag) error {
+	if in.ProxyType() == entity.ProxyTypeUndefined {
+		return errors.New("invalid proxy type")
 	}
 
 	if in.Alias() == "" {
 		return errors.New("empty tag alias")
 	}
 
-	if in.Path() == "" {
+	if in.Key() == "" {
+		return errors.New("empty tag key parameter")
+	}
+
+	if in.Path().Name() == "" {
+		return errors.New("empty tag name parameter")
+	}
+
+	if in.Path().Source() == "" {
 		return errors.New("empty tag path")
+	}
+
+	if in.Parameter() == nil {
+		return errors.New("tag have no linked parameter")
+	}
+
+	return nil
+}
+
+func validateCtxTag(in *entity.Tag) error {
+	if in.ProxyType() == entity.ProxyTypeUndefined {
+		return errors.New("invalid proxy type")
+	}
+
+	if in.Alias() == "" {
+		return errors.New("empty tag alias")
+	}
+
+	if in.Key() == "" {
+		return errors.New("empty tag key parameter")
 	}
 
 	return nil
