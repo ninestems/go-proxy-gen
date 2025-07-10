@@ -38,7 +38,7 @@ package internal {
     }
 
     interface DefinerI <<interface>> {
-        Define(out string, in Interface[]): error
+        Define(in Package): error
     }
 
     interface ScannerI <<interface>> {
@@ -50,11 +50,15 @@ package internal {
     }
 
     interface ProxierI <<interface>> {
-        Define(in Interface): byte[]
+        Define(in Package): byte[]
     }
 
     interface EmitterI <<interface>> {
-        Write(file byte[]): error
+        Write(name string, file byte[]): error
+    }
+
+    interface TemplaterI <<interface>> {
+        Template(): string
     }
 
     package scanner {
@@ -88,7 +92,7 @@ package internal {
 
     package emitter {
         class Emitter {
-            + Write(file byte[]): error
+            + Write(name string,file byte[]): error
         }
         note top of Emitter: Writes generated\nGo files to disk
 
@@ -97,16 +101,20 @@ package internal {
 
     package proxier {
         class Proxier {
-            + Define(in Interface): byte[]
+            - tl: TemplaterI
+            - tt: TemplaterI
+            - tr: TemplaterI
+            + Define(in Package): byte[]
         }
         note top of Proxier: Builds code\nfor logging/tracing wrappers
 
         Proxier .down.|> ProxierI
+        Proxier -up-> TemplaterI
     }
 
     package definer {
         class Definer {
-            + Define(out string, in Interface[]): error
+            + Define(in Package): error
         }
         note top of Definer: Generates\nwrappers and proxy methods
 
@@ -154,22 +162,47 @@ package internal {
             Loads template from file\n(if provided in config)
             or uses default embedded template
         end note
+
+        Logger ..|> internal.TemplaterI
+        Tracer ..|> internal.TemplaterI
+        Retrier ..|> internal.TemplaterI
     }
 }
 
 package entity {
     enum ProxyType {
+        Undefined
         Logger
         Tracer
         Retrier
     }
 
+    enum ParameterType {
+        Undefined
+        Input
+        Output
+    }
+
+    enum TagType {
+        Undefined
+        Context
+        Input
+        Output
+    }
+
     enum ProxyLogger {
+        Undefined
         Zap
     }
 
     enum ProxyTracer {
+        Undefined
         OpenTelemetry
+    }
+
+    enum ProxyRetrier {
+        Undefined
+        Backoff
     }
 
     class Package {
@@ -185,11 +218,18 @@ package entity {
 
     class Function {
         - name: string
-        - signature: string
-        - fields: Field[]
+        - input:  Parameter[]
+        - output: Parameter[]
+        - tags: Tag[]
     }
 
-    class Field {
+    class Parameter {
+        - typ: ParameterType
+        - name: string
+        - source: string
+    }
+
+    class Tag {
         - type: string
         - name: string
         - value: string
@@ -197,7 +237,8 @@ package entity {
 
     Package -down->Interface
     Interface -down-> Function
-    Function -down-> Field
+    Function -down-> Tag
+    Function -down-> Parameter
 }
 
 package cmd {
@@ -207,6 +248,5 @@ package cmd {
 
 cmd.generator -up--> internal.generator.Generator
 cmd.generator --up----> builder.buildFn
-
 
 @enduml

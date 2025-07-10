@@ -14,6 +14,7 @@ import (
 	"go-proxy-gen/internal/parser"
 	"go-proxy-gen/internal/proxier"
 	"go-proxy-gen/internal/scanner"
+	"go-proxy-gen/internal/templater"
 	"go-proxy-gen/internal/validator"
 )
 
@@ -102,10 +103,16 @@ func Build(
 	)
 
 	log.Printf("initializing proxier")
-	prxr := proxier.New()
+	prxr := proxier.New(
+		proxier.WithLoggerTemplater(templater.NewLogger("")),
+		proxier.WithTracerTemplater(nil),
+		proxier.WithRetrierTemplater(nil),
+	)
 
 	log.Printf("initializing emitter")
-	emtr := emitter.New()
+	emtr := emitter.New(
+		emitter.WithPath(out),
+	)
 
 	log.Printf("initializing definer")
 	def := definer.New(
