@@ -43,11 +43,16 @@ type ProxierI interface {
 	// DefineLogger generates Go source code for a proxy logger wrapper
 	// for a single interface and returns the code as bytes.
 	DefineLogger(in *entity.Package) ([]byte, error)
+	// DefineTracer generates Go source code for a proxy tracer wrapper
+	// for a single interface and returns the code as bytes.
+	DefineTracer(in *entity.Package) ([]byte, error)
 }
 
 // EmitterI defines interface for persisting generated code
 // to disk or another target.
 type EmitterI interface {
+	// Prepare recreate folder to proxy.
+	Prepare() error
 	// Write takes a byte slice and writes it to the specified file path.
 	Write(name string, file []byte) error
 }

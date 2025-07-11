@@ -105,7 +105,7 @@ func Build(
 	log.Printf("initializing proxier")
 	prxr := proxier.New(
 		proxier.WithLoggerTemplater(templater.NewLogger("")),
-		proxier.WithTracerTemplater(nil),
+		proxier.WithTracerTemplater(templater.NewTracer("")),
 		proxier.WithRetrierTemplater(nil),
 	)
 

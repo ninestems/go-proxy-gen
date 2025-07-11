@@ -5,6 +5,9 @@ package proxy
 import (
 	source "{{ .Relative }}/{{ .Name }}"
 	zap "go.uber.org/zap"
+    "encoding/json"
+    "fmt"
+    "reflect"
 {{- range .Imports }}
 {{- if eq .Alias "" }}
 	{{ .Source }}
@@ -13,6 +16,42 @@ import (
 {{- end }}
 {{- end }}
 )
+
+func zfield(key string, value any) zap.Field {
+    switch v := value.(type) {
+    case string:
+        return zap.String(key, v)
+    case bool:
+        return zap.Bool(key, v)
+    case int:
+        return zap.Int(key, v)
+    case int64:
+        return zap.Int64(key, v)
+    case int32:
+        return zap.Int32(key, v)
+    case uint:
+        return zap.Uint(key, v)
+    case uint64:
+        return zap.Uint64(key, v)
+    case float64:
+        return zap.Float64(key, v)
+    case float32:
+        return zap.Float32(key, v)
+    case []string:
+        return zap.Strings(key, v)
+    case fmt.Stringer:
+        return zap.String(key, v.String())
+    case error:
+        return zap.Error(v)
+    case json.RawMessage:
+        return zap.ByteString(key, v)
+    default:
+        if b, err := json.Marshal(value); err == nil {
+            return zap.ByteString(key, b)
+        }
+        return zap.String(key, fmt.Sprintf("%v (%s)", value, reflect.TypeOf(value)))
+    }
+}
 
 {{- range .Interfaces }}
 {{- $ifacename := .Name }}
@@ -38,7 +77,7 @@ func New{{ $ifacename }}ProxyLogger(
 
 {{- /* printing function body start */}}
 
-// {{ .Name }} is logger proxy layer for source.{{ $ifacename }} struct.
+// {{ .Name }} is proxy method for source.{{ $ifacename }}.{{ .Name }}.
 func (p *{{ $ifacename }}ProxyLogger) {{ .Name }}(
 {{- /* printing function input param in one line start */}}
 {{- range $i, $p := .Input }}
@@ -57,16 +96,13 @@ func (p *{{ $ifacename }}ProxyLogger) {{ .Name }}(
 {{- end }} {
 	p.log.Info(
 		"{{ .Name }}() started",
-	{{- range $i, $tag := .Tags }}
-		 {{- if and (eq $tag.ProxyType 1) (eq $tag.TagType 1)}}
-		zap.Any("{{ $tag.Alias}}", ctx.Value("{{ $tag.Key }}")),
-		{{- end }}
-		{{- if and (eq $tag.ProxyType 1) (eq $tag.TagType 2)}}
-		zap.Any("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
-		{{- end }}
+	{{- range $i, $tag := .LogContextTags }}
+		zap.Any("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
+	{{- end }}
+	{{- range $i, $tag := .LogInputTags }}
+		zfield("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
 	{{- end }}
 	)
-
 
 	{{- /* calling functions in proxy start */}}
 	{{ if ge (len .Output) 1 }}
@@ -95,13 +131,22 @@ func (p *{{ $ifacename }}ProxyLogger) {{ .Name }}(
 	} else {
 		p.log.Info(
 			"{{ .Name }}() ends with success",
-		{{- range $i, $tag := .Tags }}
+		{{- range $i, $tag := .LogOutputTags }}
 			{{- if and (eq $tag.ProxyType 1) (eq $tag.TagType 3)}}
-			zap.Any("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+			zfield("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
 			{{- end }}
 		{{- end }}
 		)
 	}
+	{{- else if (ge (len .Output) 1)}}
+    p.log.Info(
+        "{{ .Name }}() ends with success",
+    {{- range $i, $tag := .LogOutputTags }}
+        {{- if and (eq $tag.ProxyType 1) (eq $tag.TagType 3)}}
+        zfield("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+        {{- end }}
+    {{- end }}
+    )
 	{{- else }}
 	p.log.Info("{{ .Name }}() ends with success")
 	{{- end }}

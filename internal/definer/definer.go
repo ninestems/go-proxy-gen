@@ -2,9 +2,6 @@
 package definer
 
 import (
-	"log"
-
-	"go-proxy-gen/entity"
 	"go-proxy-gen/internal"
 )
 
@@ -28,23 +25,4 @@ func New(opts ...Option) *Definer {
 		proxier: cfg.proxier,
 		emitter: cfg.emitter,
 	}
-}
-
-// Define reads special markdown and makes proxy layers in `out` place.
-func (d *Definer) Define(in *entity.Package) error {
-	log.Printf("generate logger bytes start %s\n", in.Name())
-	lbytes, err := d.proxier.DefineLogger(in)
-	if err != nil {
-		return err
-	}
-	log.Printf("generate logger bytes success\n")
-
-	log.Printf("creating logger proxy file %s\n", in.Name())
-	if err = d.emitter.Write("logger", lbytes); err != nil {
-		return err
-	}
-
-	log.Printf("creating logger proxy file success %s\n", in.Name())
-
-	return nil
 }
