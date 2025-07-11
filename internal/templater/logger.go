@@ -3,7 +3,7 @@ package templater
 
 import _ "embed"
 
-//go:embed files/logger/zap.txt
+//go:embed files/logger/zap.tmpl
 var loggerZapTemplate string
 
 type Logger struct {

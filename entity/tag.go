@@ -4,35 +4,11 @@ import (
 	"strings"
 )
 
-// Path describe source variable name and type.
-type Path struct {
-	name   string
-	source string
-}
-
-// NewPath builds instance of Path.
-func NewPath(name string, path string) *Path {
-	return &Path{
-		name:   name,
-		source: path,
-	}
-}
-
-func (p *Path) Name() string {
-	return p.name
-}
-
-func (p *Path) SetName(name string) {
-	p.name = name
-}
-
-func (p *Path) Source() string {
-	return p.source
-}
-
-func (p *Path) SetPath(path string) {
-	p.source = path
-}
+var (
+	_ LogContextTag = (*Tag)(nil)
+	_ LogInputTag   = (*Tag)(nil)
+	_ LogOutputTag  = (*Tag)(nil)
+)
 
 // Tag describe tags for function.
 type Tag struct {
@@ -132,10 +108,6 @@ func (t *Tag) Source() string {
 
 // ApplyParameter checks input Parameter and apply if conditions are true.
 func (t *Tag) ApplyParameter(param *Parameter) {
-	if t.TagType() == TagTypeContext {
-		return
-	}
-
 	if !(t.Source() == strings.TrimLeft(param.Source(), "*")) {
 		return
 	}

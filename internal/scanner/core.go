@@ -45,6 +45,7 @@ func tag(in []string) *entity.Tag {
 	case "ctx":
 		parameterType = entity.TagTypeContext
 		alias, key = extractCtx(data)
+		path = "context.Context"
 	case "input":
 		parameterType = entity.TagTypeInput
 		alias, name, path, key = extractIO(data)

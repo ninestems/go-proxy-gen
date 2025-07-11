@@ -80,6 +80,17 @@ func validateFunction(in *entity.Function) error {
 		return errors.New("empty function name")
 	}
 
+	hasContext := false
+	for _, parameter := range in.Input() {
+		if parameter.Source() == "context.Context" {
+			hasContext = true
+		}
+	}
+
+	if !hasContext {
+		return errors.New("missing context input parameter")
+	}
+
 	return nil
 }
 

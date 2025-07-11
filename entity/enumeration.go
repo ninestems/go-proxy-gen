@@ -26,6 +26,7 @@ const (
 	TagTypeContext
 	TagTypeInput
 	TagTypeOutput
+	TagTypeRetry
 )
 
 func (p TagType) String() string {
@@ -36,6 +37,8 @@ func (p TagType) String() string {
 		return "in"
 	case TagTypeOutput:
 		return "out"
+	case TagTypeRetry:
+		return "retry"
 	default:
 		return "undefined"
 	}
