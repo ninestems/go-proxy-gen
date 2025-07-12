@@ -34,6 +34,7 @@ func (i *Interface) SetFunctions(funcs []*Function) {
 	i.functions = funcs
 }
 
+// Prepare generate parameter names and make link between parameters and tags.
 func (i *Interface) Prepare() {
 	for _, fn := range i.functions {
 		fn.Prepare()

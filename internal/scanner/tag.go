@@ -8,7 +8,7 @@ import (
 )
 
 // tags extracts custom tags from all lines of comments.
-func ftags(in *ast.CommentGroup) *entity.Tags {
+func tags(in *ast.CommentGroup) *entity.Tags {
 	var (
 		out   entity.Tags
 		found = false
@@ -53,40 +53,6 @@ func ftags(in *ast.CommentGroup) *entity.Tags {
 				out.AddRetry(extractRetryTag(info, proxyType))
 			}
 		}
-	}
-
-	return &out
-}
-
-// tag extracts custom tag from one line of comment.
-func ftag(in []string) *entity.Tags {
-	var (
-		out entity.Tags
-	)
-
-	var (
-		proxyType entity.ProxyType
-	)
-
-	switch in[0] {
-	case "log":
-		proxyType = entity.ProxyTypeLogger
-	case "trace":
-		proxyType = entity.ProxyTypeTracer
-	case "retry":
-		proxyType = entity.ProxyTypeRetrier
-	}
-
-	data := strings.Split(in[1], "::")
-	switch data[0] {
-	case "ctx":
-		out.AddContext(extractContextIOTag(data, proxyType))
-	case "input":
-		out.AddInput(extractInputIOTag(data, proxyType))
-	case "output":
-		out.AddOutput(extractOutputIOTag(data, proxyType))
-	case "retry":
-		out.AddRetry(extractRetryTag(data, proxyType))
 	}
 
 	return &out
@@ -154,6 +120,6 @@ func extractOutputIOTag(in []string, ptype entity.ProxyType) *entity.OutputIO {
 	return entity.NewIOOutputTag(alias, name, path, key, ptype)
 }
 
-func extractRetryTag(in []string, ptype entity.ProxyType) *entity.Retry {
+func extractRetryTag(_ []string, _ entity.ProxyType) *entity.Retry {
 	panic("not yet implemented")
 }

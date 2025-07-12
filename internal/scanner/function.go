@@ -26,7 +26,7 @@ func function(in *ast.Field) *entity.Function {
 		output = parameters(funcType.Results.List, entity.ParameterTypeOutput)
 	}
 
-	return entity.NewFunction(in.Names[0].Name, input, output, ftags(in.Doc))
+	return entity.NewFunction(in.Names[0].Name, input, output, tags(in.Doc))
 }
 
 // functions extracts functions from ast tree.

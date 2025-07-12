@@ -14,6 +14,7 @@ type IO struct {
 	parameter *Parameter
 }
 
+// NewTagIO builds new instance of IO.
 func NewTagIO(
 	alias string,
 	name string,
@@ -31,38 +32,47 @@ func NewTagIO(
 	}
 }
 
+// Alias returns alias.
 func (t *IO) Alias() string {
 	return t.alias
 }
 
+// Name returns name.
 func (t *IO) Name() string {
 	return t.name
 }
 
+// Source returns source.
 func (t *IO) Source() string {
 	return t.source
 }
 
+// Key returns key.
 func (t *IO) Key() string {
 	return t.key
 }
 
+// IsEmptyParameter check linked parameter.
 func (t *IO) IsEmptyParameter() bool {
 	return t.parameter == nil
 }
 
+// IsEmptyName check name.
 func (t *IO) IsEmptyName() bool {
 	return t.name == ""
 }
 
+// IsName compare name with in.
 func (t *IO) IsName(in string) bool {
 	return t.name == in
 }
 
+// IsSource compare source with in.
 func (t *IO) IsSource(in string) bool {
 	return t.source == strings.TrimLeft(in, "*")
 }
 
+// IsParentParameter check that parameter is parent for tag.
 func (t *IO) IsParentParameter(p *Parameter) bool {
 	isSource := t.IsSource(p.Source())               // source from parameter equals source from tag.
 	isNameEmpty := t.IsEmptyName()                   // name from tag is empty.
@@ -82,10 +92,12 @@ func (t *IO) ApplyParameter(p *Parameter) {
 	}
 }
 
+// ContextIO describe tag for context.
 type ContextIO struct {
 	*IO
 }
 
+// NewIOContextTag builds new instance of ContextIO.
 func NewIOContextTag(
 	alias string,
 	name string,
@@ -105,10 +117,12 @@ func NewIOContextTag(
 	}
 }
 
+// InputIO describe input tags.
 type InputIO struct {
 	*IO
 }
 
+// NewIOInputTag builds new instance of InputIO.
 func NewIOInputTag(
 	alias string,
 	name string,
@@ -128,10 +142,12 @@ func NewIOInputTag(
 	}
 }
 
+// OutputIO describe output tags.
 type OutputIO struct {
 	*IO
 }
 
+// NewIOOutputTag builds new instance of OutputIO.
 func NewIOOutputTag(
 	alias string,
 	name string,

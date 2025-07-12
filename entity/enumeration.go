@@ -1,13 +1,18 @@
 package entity
 
+// ParameterType describe types for parameters of function.
 type ParameterType uint32
 
 const (
+	// ParameterTypeUndefined undefined.
 	ParameterTypeUndefined ParameterType = iota
+	// ParameterTypeInput for input parameters.
 	ParameterTypeInput
+	// ParameterTypeOutput for output parameters.
 	ParameterTypeOutput
 )
 
+// String implements stringer for ParameterType.
 func (p ParameterType) String() string {
 	switch p {
 	case ParameterTypeInput:
@@ -19,16 +24,23 @@ func (p ParameterType) String() string {
 	}
 }
 
+// TagType describe tag type.
 type TagType uint32
 
 const (
+	// TagTypeUndefined undefined.
 	TagTypeUndefined TagType = iota
+	// TagTypeContext context type tag.
 	TagTypeContext
+	// TagTypeInput tag for input setting.
 	TagTypeInput
+	// TagTypeOutput tag for output setting.
 	TagTypeOutput
+	// TagTypeRetry tag for retry setting.
 	TagTypeRetry
 )
 
+// String implements stringer for TagType.
 func (p TagType) String() string {
 	switch p {
 	case TagTypeContext:

@@ -52,38 +52,47 @@ func (f *Function) SetOutput(params []*Parameter) {
 	f.output = params
 }
 
+// Tags returns main object which contains all tags.
 func (f *Function) Tags() *Tags {
 	return f.tags
 }
 
+// LogContextTags returns context tag for logger.
 func (f *Function) LogContextTags() []*ContextIO {
 	return f.tags.ContextLogger()
 }
 
+// LogInputTags returns input tag for logger.
 func (f *Function) LogInputTags() []*InputIO {
 	return f.tags.InputLogger()
 }
 
+// LogOutputTags returns output tag for logger.
 func (f *Function) LogOutputTags() []*OutputIO {
 	return f.tags.OutputLogger()
 }
 
+// TraceContextTags returns context tag for tracer.
 func (f *Function) TraceContextTags() []*ContextIO {
 	return f.tags.ContextTracer()
 }
 
+// TraceInputTags returns input tag for tracer.
 func (f *Function) TraceInputTags() []*InputIO {
 	return f.tags.InputTracer()
 }
 
+// TraceOutputTags returns output tag for tracer.
 func (f *Function) TraceOutputTags() []*OutputIO {
 	return f.tags.OutputTracer()
 }
 
+// RetryTags returns all retry tags.
 func (f *Function) RetryTags() []*Retry {
 	return f.tags.Retry()
 }
 
+// Prepare generate parameter names and make link between parameters and tags.
 func (f *Function) Prepare() {
 	for idx := range f.input {
 		f.input[idx].Prepare(strconv.Itoa(idx))

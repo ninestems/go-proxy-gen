@@ -3,6 +3,7 @@ package validator
 
 import (
 	"errors"
+	"fmt"
 
 	"go-proxy-gen/entity"
 	"go-proxy-gen/internal"
@@ -11,9 +12,7 @@ import (
 var _ internal.ValidatorI = (*Validator)(nil)
 
 // Validator describe how markdown validates.
-type Validator struct {
-	path string
-}
+type Validator struct{}
 
 // New builds new instance of Emitter.
 func New() *Validator {
@@ -122,15 +121,19 @@ func validateContextIOTags(in ...*entity.ContextIO) error {
 
 func validateContextIOTag(in *entity.ContextIO) error {
 	if in.PType() == entity.ProxyTypeUndefined {
-		return errors.New("invalid proxy type")
+		return fmt.Errorf(
+			"invalid proxy type for context tag: alias='%v',source='%v'",
+			in.Alias(),
+			in.Source(),
+		)
 	}
 
 	if in.Alias() == "" {
-		return errors.New("empty tag alias")
+		return fmt.Errorf("empty tag alias")
 	}
 
 	if in.Key() == "" {
-		return errors.New("empty tag key parameter")
+		return fmt.Errorf("empty tag key parameter")
 	}
 
 	return nil
@@ -148,27 +151,33 @@ func validateInputIOTags(in ...*entity.InputIO) error {
 
 func validateInputIOTag(in *entity.InputIO) error {
 	if in.PType() == entity.ProxyTypeUndefined {
-		return errors.New("invalid proxy type for input tag")
+		return fmt.Errorf("invalid proxy type for input tag alias='%v',source='%v'",
+			in.Alias(),
+			in.Source(),
+		)
 	}
 
 	if in.Alias() == "" {
-		return errors.New("empty input tag alias")
+		return fmt.Errorf("empty input tag alias")
 	}
 
 	if in.Key() == "" {
-		return errors.New("empty input tag key parameter")
+		return fmt.Errorf("empty input tag key parameter")
 	}
 
 	if in.IsEmptyName() {
-		return errors.New("empty input tag name parameter")
+		return fmt.Errorf("empty input tag name parameter")
 	}
 
 	if in.Source() == "" {
-		return errors.New("empty input tag path")
+		return fmt.Errorf("empty input tag path")
 	}
 
 	if in.IsEmptyParameter() {
-		return errors.New("input tag have no linked parameter")
+		return fmt.Errorf("input tag have no linked parameter alias='%v',source='%v'",
+			in.Alias(),
+			in.Source(),
+		)
 	}
 
 	return nil
@@ -186,27 +195,30 @@ func validateOutputIOTags(in ...*entity.OutputIO) error {
 
 func validateOutputIOTag(in *entity.OutputIO) error {
 	if in.PType() == entity.ProxyTypeUndefined {
-		return errors.New("invalid proxy type output tag")
+		return fmt.Errorf("invalid proxy type output tag")
 	}
 
 	if in.Alias() == "" {
-		return errors.New("empty output tag alias")
+		return fmt.Errorf("empty output tag alias")
 	}
 
 	if in.Key() == "" {
-		return errors.New("empty output tag key parameter")
+		return fmt.Errorf("empty output tag key parameter")
 	}
 
 	if in.IsEmptyName() {
-		return errors.New("empty output tag name parameter")
+		return fmt.Errorf("empty output tag name parameter")
 	}
 
 	if in.Source() == "" {
-		return errors.New("empty output tag path")
+		return fmt.Errorf("empty output tag path")
 	}
 
 	if in.IsEmptyParameter() {
-		return errors.New("output tag have no linked parameter")
+		return fmt.Errorf("output tag have no linked parameter alias='%v',source='%v'",
+			in.Alias(),
+			in.Source(),
+		)
 	}
 
 	return nil
@@ -222,6 +234,6 @@ func validateRetryTags(in ...*entity.Retry) error {
 	return nil
 }
 
-func validateRetryTag(in *entity.Retry) error {
+func validateRetryTag(_ *entity.Retry) error {
 	panic("implement me")
 }
