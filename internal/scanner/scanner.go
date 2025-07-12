@@ -2,8 +2,7 @@
 package scanner
 
 // Scanner contains logic how scan source and format in to markdown.
-type Scanner struct {
-}
+type Scanner struct{}
 
 // New build new instance of Scanner.
 func New() *Scanner {

@@ -1,99 +1,106 @@
 package entity
 
-type Tags []*Tag
+type Tags struct {
+	context []*ContextIO
+	input   []*InputIO
+	output  []*OutputIO
+	retry   []*Retry
+}
 
-func (t Tags) Input() []InputTag {
-	var out []InputTag
-	for _, tag := range t {
-		if tag.TagType() == TagTypeContext || tag.TagType() == TagTypeInput { // todo ref as method
-			out = append(out, tag)
+func (t *Tags) AddContext(in ...*ContextIO) {
+	t.context = append(t.context, in...)
+}
+
+func (t *Tags) AddInput(in ...*InputIO) {
+	t.input = append(t.input, in...)
+}
+
+func (t *Tags) AddOutput(out ...*OutputIO) {
+	t.output = append(t.output, out...)
+}
+
+func (t *Tags) AddRetry(in ...*Retry) {
+	t.retry = append(t.retry, in...)
+}
+
+func (t *Tags) Context() []*ContextIO {
+	return t.context
+}
+
+func (t *Tags) ContextLogger() []*ContextIO {
+	var out []*ContextIO
+	for _, tag := range t.context {
+		if !tag.IsForLogger() {
+			continue
 		}
+		out = append(out, tag)
 	}
 	return out
 }
 
-func (t Tags) Output() []OutputTag {
-	var out []OutputTag
-	for _, tag := range t {
-		if tag.TagType() == TagTypeOutput { // todo ref as method
-			out = append(out, tag)
+func (t *Tags) ContextTracer() []*ContextIO {
+	var out []*ContextIO
+	for _, tag := range t.context {
+		if !tag.IsForTracer() {
+			continue
 		}
+		out = append(out, tag)
 	}
 	return out
 }
 
-func (t Tags) LogContext() []LogContextTag {
-	var out []LogContextTag
-	for _, tag := range t {
-		if tag.TagType() == TagTypeContext && // todo ref as method
-			tag.ProxyType() == ProxyTypeLogger { // todo ref as method
-			out = append(out, tag)
+func (t *Tags) Input() []*InputIO {
+	return t.input
+}
+
+func (t *Tags) InputLogger() []*InputIO {
+	var out []*InputIO
+	for _, tag := range t.input {
+		if !tag.IsForLogger() {
+			continue
 		}
+		out = append(out, tag)
 	}
 	return out
 }
 
-func (t Tags) LogInput() []LogInputTag {
-	var out []LogInputTag
-	for _, tag := range t {
-		if tag.TagType() == TagTypeInput && // todo ref as method
-			tag.ProxyType() == ProxyTypeLogger { // todo ref as method
-			out = append(out, tag)
+func (t *Tags) InputTracer() []*InputIO {
+	var out []*InputIO
+	for _, tag := range t.input {
+		if !tag.IsForTracer() {
+			continue
 		}
+		out = append(out, tag)
 	}
 	return out
 }
 
-func (t Tags) LogOutput() []LogOutputTag {
-	var out []LogOutputTag
-	for _, tag := range t {
-		if tag.TagType() == TagTypeOutput && // todo ref as method
-			tag.ProxyType() == ProxyTypeLogger { // todo ref as method
-			out = append(out, tag)
+func (t *Tags) Output() []*OutputIO {
+	return t.output
+}
+
+func (t *Tags) OutputLogger() []*OutputIO {
+	var out []*OutputIO
+	for _, tag := range t.output {
+		if !tag.IsForLogger() {
+			continue
 		}
+		out = append(out, tag)
 	}
 	return out
 }
 
-func (t Tags) TraceContext() []TraceContextTag {
-	var out []TraceContextTag
-	for _, tag := range t {
-		if tag.TagType() == TagTypeContext && // todo ref as method
-			tag.ProxyType() == ProxyTypeTracer { // todo ref as method
-			out = append(out, tag)
+func (t *Tags) OutputTracer() []*OutputIO {
+	var out []*OutputIO
+	for _, tag := range t.output {
+		if !tag.IsForTracer() {
+			continue
 		}
+		out = append(out, tag)
 	}
 	return out
 }
 
-func (t Tags) TraceInput() []TraceInputTag {
-	var out []TraceInputTag
-	for _, tag := range t {
-		if tag.TagType() == TagTypeInput && // todo ref as method
-			tag.ProxyType() == ProxyTypeTracer { // todo ref as method
-			out = append(out, tag)
-		}
-	}
-	return out
-}
-
-func (t Tags) TraceOutput() []TraceOutputTag {
-	var out []TraceOutputTag
-	for _, tag := range t {
-		if tag.TagType() == TagTypeOutput && // todo ref as method
-			tag.ProxyType() == ProxyTypeTracer { // todo ref as method
-			out = append(out, tag)
-		}
-	}
-	return out
-}
-
-func (t Tags) Retry() []RetryTag {
-	var out []RetryTag
-	for _, tag := range t {
-		if tag.ProxyType() == ProxyTypeRetrier { // todo ref as method
-			out = append(out, tag)
-		}
-	}
-	return out
+func (t *Tags) Retry() []*Retry {
+	return t.retry
 }

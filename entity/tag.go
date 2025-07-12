@@ -4,11 +4,6 @@ import (
 	"strings"
 )
 
-var (
-	_ LogContextTag = (*Tag)(nil)
-	_ LogInputTag   = (*Tag)(nil)
-	_ LogOutputTag  = (*Tag)(nil)
-)
 
 // Tag describe tags for function.
 type Tag struct {

@@ -9,11 +9,11 @@ type Function struct {
 	name   string
 	input  []*Parameter
 	output []*Parameter
-	tags   Tags
+	tags   *Tags
 }
 
 // NewFunction builds new Function.
-func NewFunction(name string, input []*Parameter, output []*Parameter, tags []*Tag) *Function {
+func NewFunction(name string, input []*Parameter, output []*Parameter, tags *Tags) *Function {
 	return &Function{
 		name:   name,
 		input:  input,
@@ -52,41 +52,35 @@ func (f *Function) SetOutput(params []*Parameter) {
 	f.output = params
 }
 
-// Tags returns the tags of the function.
-func (f *Function) Tags() Tags {
+func (f *Function) Tags() *Tags {
 	return f.tags
 }
 
-// SetTags sets the tags of the function.
-func (f *Function) SetTags(tags []*Tag) {
-	f.tags = tags
+func (f *Function) LogContextTags() []*ContextIO {
+	return f.tags.ContextLogger()
 }
 
-func (f *Function) LogContextTags() []LogContextTag {
-	return f.tags.LogContext()
+func (f *Function) LogInputTags() []*InputIO {
+	return f.tags.InputLogger()
 }
 
-func (f *Function) LogInputTags() []LogInputTag {
-	return f.tags.LogInput()
+func (f *Function) LogOutputTags() []*OutputIO {
+	return f.tags.OutputLogger()
 }
 
-func (f *Function) LogOutputTags() []LogOutputTag {
-	return f.tags.LogOutput()
+func (f *Function) TraceContextTags() []*ContextIO {
+	return f.tags.ContextTracer()
 }
 
-func (f *Function) TraceContextTags() []TraceContextTag {
-	return f.tags.TraceContext()
+func (f *Function) TraceInputTags() []*InputIO {
+	return f.tags.InputTracer()
 }
 
-func (f *Function) TraceInputTags() []TraceInputTag {
-	return f.tags.TraceInput()
+func (f *Function) TraceOutputTags() []*OutputIO {
+	return f.tags.OutputTracer()
 }
 
-func (f *Function) TraceOutputTags() []TraceOutputTag {
-	return f.tags.TraceOutput()
-}
-
-func (f *Function) RetryTags() []RetryTag {
+func (f *Function) RetryTags() []*Retry {
 	return f.tags.Retry()
 }
 
@@ -102,14 +96,17 @@ func (f *Function) Prepare() {
 
 // LinkParameters links input/output parameters with tags.
 func (f *Function) LinkParameters() {
-	for _, tag := range f.tags.Input() {
-		for _, param := range f.input {
-			tag.ApplyParameter(param)
+	for _, p := range f.input {
+		for _, tag := range f.Tags().Context() {
+			tag.ApplyParameter(p)
+		}
+		for _, tag := range f.Tags().Input() {
+			tag.ApplyParameter(p)
 		}
 	}
-	for _, tag := range f.tags.Output() {
-		for _, param := range f.output {
-			tag.ApplyParameter(param)
+	for _, p := range f.output {
+		for _, tag := range f.Tags().Output() {
+			tag.ApplyParameter(p)
 		}
 	}
 }

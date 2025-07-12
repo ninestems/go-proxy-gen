@@ -37,10 +37,8 @@ func (e *Validator) Validate(in *entity.Package) error {
 				return err
 			}
 
-			for _, tag := range fn.Tags() {
-				if err := validateTag(tag); err != nil {
-					return err
-				}
+			if err := validateTags(fn.Tags()); err != nil {
+				return err
 			}
 		}
 	}
@@ -95,49 +93,35 @@ func validateFunction(in *entity.Function) error {
 }
 
 // validateTag validate tag info.
-func validateTag(in *entity.Tag) error {
-	switch in.TagType() {
-	case entity.TagTypeContext:
-		return validateCtxTag(in)
-	case entity.TagTypeInput, entity.TagTypeOutput:
-		return validateIOTag(in)
-	case entity.TagTypeUndefined:
-		return errors.New("invalid tag type")
+func validateTags(in *entity.Tags) error {
+	if err := validateContextIOTags(in.Context()...); err != nil {
+		return err
+	}
+	if err := validateInputIOTags(in.Input()...); err != nil {
+		return err
+	}
+	if err := validateOutputIOTags(in.Output()...); err != nil {
+		return err
+	}
+	if err := validateRetryTags(in.Retry()...); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func validateIOTag(in *entity.Tag) error {
-	if in.ProxyType() == entity.ProxyTypeUndefined {
-		return errors.New("invalid proxy type")
-	}
-
-	if in.Alias() == "" {
-		return errors.New("empty tag alias")
-	}
-
-	if in.Key() == "" {
-		return errors.New("empty tag key parameter")
-	}
-
-	if in.Path().Name() == "" {
-		return errors.New("empty tag name parameter")
-	}
-
-	if in.Path().Source() == "" {
-		return errors.New("empty tag path")
-	}
-
-	if in.Parameter() == nil {
-		return errors.New("tag have no linked parameter")
+func validateContextIOTags(in ...*entity.ContextIO) error {
+	for _, tag := range in {
+		if err := validateContextIOTag(tag); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func validateCtxTag(in *entity.Tag) error {
-	if in.ProxyType() == entity.ProxyTypeUndefined {
+func validateContextIOTag(in *entity.ContextIO) error {
+	if in.PType() == entity.ProxyTypeUndefined {
 		return errors.New("invalid proxy type")
 	}
 
@@ -150,4 +134,94 @@ func validateCtxTag(in *entity.Tag) error {
 	}
 
 	return nil
+}
+
+func validateInputIOTags(in ...*entity.InputIO) error {
+	for _, tag := range in {
+		if err := validateInputIOTag(tag); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateInputIOTag(in *entity.InputIO) error {
+	if in.PType() == entity.ProxyTypeUndefined {
+		return errors.New("invalid proxy type for input tag")
+	}
+
+	if in.Alias() == "" {
+		return errors.New("empty input tag alias")
+	}
+
+	if in.Key() == "" {
+		return errors.New("empty input tag key parameter")
+	}
+
+	if in.IsEmptyName() {
+		return errors.New("empty input tag name parameter")
+	}
+
+	if in.Source() == "" {
+		return errors.New("empty input tag path")
+	}
+
+	if in.IsEmptyParameter() {
+		return errors.New("input tag have no linked parameter")
+	}
+
+	return nil
+}
+
+func validateOutputIOTags(in ...*entity.OutputIO) error {
+	for _, tag := range in {
+		if err := validateOutputIOTag(tag); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateOutputIOTag(in *entity.OutputIO) error {
+	if in.PType() == entity.ProxyTypeUndefined {
+		return errors.New("invalid proxy type output tag")
+	}
+
+	if in.Alias() == "" {
+		return errors.New("empty output tag alias")
+	}
+
+	if in.Key() == "" {
+		return errors.New("empty output tag key parameter")
+	}
+
+	if in.IsEmptyName() {
+		return errors.New("empty output tag name parameter")
+	}
+
+	if in.Source() == "" {
+		return errors.New("empty output tag path")
+	}
+
+	if in.IsEmptyParameter() {
+		return errors.New("output tag have no linked parameter")
+	}
+
+	return nil
+}
+
+func validateRetryTags(in ...*entity.Retry) error {
+	for _, tag := range in {
+		if err := validateRetryTag(tag); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func validateRetryTag(in *entity.Retry) error {
+	panic("implement me")
 }
