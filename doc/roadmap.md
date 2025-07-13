@@ -37,6 +37,23 @@
 - [ ] ...
 
 
+### Way versions by functionality
+- alfa
+  - started by `go generate`
+  - read flags when running
+  - correct read tags from interface for logger and tracer
+  - generate log/proxy layers for one implementation
+  - have enough deep in documentation
+- beta
+  - tool have test coverage ~80% for core logic
+  - correct read tags from interface for retrier
+  - generate retry proxy layer
+  - read local config to change deep settings of tool
+- release candidate 
+  - ...
+- release 
+  - ...
+
 ### Supported Dependencies
 - [x] [Zap logger](https://github.com/uber-go/zap)
 - [x] [OpenTelemetry tracing](https://opentelemetry.io/docs/languages/go/)
