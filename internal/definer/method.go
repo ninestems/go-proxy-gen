@@ -3,7 +3,7 @@ package definer
 import (
 	"log"
 
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // Define reads special markdown and makes proxy layers in `out` place.

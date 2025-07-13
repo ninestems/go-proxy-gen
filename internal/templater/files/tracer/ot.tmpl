@@ -50,7 +50,7 @@ type {{ $ifacename }}ProxyTracer struct {
 	trace trace.Tracer
 }
 
-// New{{ .Name }}ProxyTracer creates a new proxy logger for source.{{ $ifacename }}.
+// New{{ .Name }}ProxyTracer creates a new proxy trace for source.{{ $ifacename }}.
 func New{{ $ifacename }}ProxyTracer(
 	src source.{{ $ifacename }},
 	tp *traceprovider.TracerProvider,
@@ -86,10 +86,10 @@ func (p *{{ $ifacename }}ProxyTracer) {{ .Name }}(
 	defer span.End()
     {{- if or (len .TraceContextTags) (len .TraceInputTags) }}
     span.SetAttributes(
-    {{- range $i, $tag := .LogContextTags }}
+    {{- range $i, $tag := .TraceContextTags }}
         attr("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
         {{- end }}
-        {{- range $i, $tag := .LogInputTags }}
+        {{- range $i, $tag := .TraceInputTags }}
         attr("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
     {{- end }}
     )
@@ -118,15 +118,24 @@ func (p *{{ $ifacename }}ProxyTracer) {{ .Name }}(
         span.RecordError({{ (index .Output (sub (len .Output) 1)).Name }})
         span.SetStatus(codes.Error, {{ (index .Output (sub (len .Output) 1)).Name }}.Error())
 	} else {
-    {{- if or (len .TraceContextTags) (len .TraceInputTags) }}
+    {{- if (len .TraceOutputTags) }}
         span.SetAttributes(
-        {{- range $i, $tag := .LogOutputTags }}
+        {{- range $i, $tag := .TraceOutputTags }}
             attr("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
         {{- end }}
         )
     {{- end }}
         span.SetStatus(codes.Ok, "{{ $ifacename }}ProxyTracer.{{ .Name }}() success")
 	}
+	{{- else if (ge (len .Output) 1)}}
+    {{- if (len .TraceOutputTags) }}
+    span.SetAttributes(
+    {{- range $i, $tag := .TraceOutputTags }}
+        attr("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+    {{- end }}
+    )
+    {{- end }}
+    span.SetStatus(codes.Ok, "{{ $ifacename }}ProxyTracer.{{ .Name }}() success")
 	{{- else }}
 	span.SetStatus(codes.Ok, "{{ $ifacename }}ProxyTracer.{{ .Name }}() success")
 	{{- end }}

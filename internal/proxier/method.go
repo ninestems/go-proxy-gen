@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"text/template"
 
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // DefineLogger generates Go source code for a proxy wrapper

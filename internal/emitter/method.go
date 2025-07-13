@@ -18,7 +18,6 @@ func (e *Emitter) Prepare() error {
 	return nil
 }
 
-
 // Write takes a byte slice and writes it to the specified file path.
 func (e *Emitter) Write(name string, file []byte) error {
 	if err := os.WriteFile(filepath.Join(e.path, name+".go"), file, 0644); err != nil {

@@ -1,3 +1,3 @@
-module go-proxy-gen
+module github.com/ninestems/go-proxy-gen
 
-go 1.24.4
+go 1.24

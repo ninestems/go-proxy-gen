@@ -134,31 +134,28 @@ package internal {
 
     package template {
         class Logger {
-            + GetPackage(): string
-            + GetFunction(): string
+            + Template(): string
         }
 
         class Tracer {
-            + GetPackage(): string
-            + GetFunction(): string
+            + Template(): string
         }
 
         class Retrier {
-            + GetPackage(): string
-            + GetFunction(): string
+            + Template(): string
         }
 
-        note right of Logger
+        note top of Logger
             Loads template from file\n(if provided in config)
             or uses default embedded template
         end note
 
-        note right of Tracer
+        note top of Tracer
             Loads template from file\n(if provided in config)
             or uses default embedded template
         end note
 
-        note right of Retrier
+        note top of Retrier
             Loads template from file\n(if provided in config)
             or uses default embedded template
         end note
@@ -188,6 +185,7 @@ package entity {
         Context
         Input
         Output
+        Retry
     }
 
     enum ProxyLogger {
@@ -220,7 +218,14 @@ package entity {
         - name: string
         - input:  Parameter[]
         - output: Parameter[]
-        - tags: Tag[]
+        - tags: Tags
+    }
+
+    class Tags {
+        - context: IO
+        - input: IO
+        - output: IO
+        - retry: Retry
     }
 
     class Parameter {
@@ -229,16 +234,29 @@ package entity {
         - source: string
     }
 
-    class Tag {
-        - type: string
-        - name: string
-        - value: string
+    class Common {
+        - ttype: TagType
+        - ptype: ParameterType
     }
+
+    class IO {
+        - alias: string
+        - name: string
+        - source: string
+        - key: string
+        - parameter: Parameter
+    }
+
+    class Retry {}
 
     Package -down->Interface
     Interface -down-> Function
-    Function -down-> Tag
+    Function -down-> Tags
     Function -down-> Parameter
+    Tags -down-> IO
+    Tags -down-> Retry
+
+    Common *-left- IO
 }
 
 package cmd {

@@ -9,11 +9,11 @@ type Function struct {
 	name   string
 	input  []*Parameter
 	output []*Parameter
-	tags   Tags
+	tags   *Tags
 }
 
 // NewFunction builds new Function.
-func NewFunction(name string, input []*Parameter, output []*Parameter, tags []*Tag) *Function {
+func NewFunction(name string, input []*Parameter, output []*Parameter, tags *Tags) *Function {
 	return &Function{
 		name:   name,
 		input:  input,
@@ -52,44 +52,47 @@ func (f *Function) SetOutput(params []*Parameter) {
 	f.output = params
 }
 
-// Tags returns the tags of the function.
-func (f *Function) Tags() Tags {
+// Tags returns main object which contains all tags.
+func (f *Function) Tags() *Tags {
 	return f.tags
 }
 
-// SetTags sets the tags of the function.
-func (f *Function) SetTags(tags []*Tag) {
-	f.tags = tags
+// LogContextTags returns context tag for logger.
+func (f *Function) LogContextTags() []*ContextIO {
+	return f.tags.ContextLogger()
 }
 
-func (f *Function) LogContextTags() []LogContextTag {
-	return f.tags.LogContext()
+// LogInputTags returns input tag for logger.
+func (f *Function) LogInputTags() []*InputIO {
+	return f.tags.InputLogger()
 }
 
-func (f *Function) LogInputTags() []LogInputTag {
-	return f.tags.LogInput()
+// LogOutputTags returns output tag for logger.
+func (f *Function) LogOutputTags() []*OutputIO {
+	return f.tags.OutputLogger()
 }
 
-func (f *Function) LogOutputTags() []LogOutputTag {
-	return f.tags.LogOutput()
+// TraceContextTags returns context tag for tracer.
+func (f *Function) TraceContextTags() []*ContextIO {
+	return f.tags.ContextTracer()
 }
 
-func (f *Function) TraceContextTags() []TraceContextTag {
-	return f.tags.TraceContext()
+// TraceInputTags returns input tag for tracer.
+func (f *Function) TraceInputTags() []*InputIO {
+	return f.tags.InputTracer()
 }
 
-func (f *Function) TraceInputTags() []TraceInputTag {
-	return f.tags.TraceInput()
+// TraceOutputTags returns output tag for tracer.
+func (f *Function) TraceOutputTags() []*OutputIO {
+	return f.tags.OutputTracer()
 }
 
-func (f *Function) TraceOutputTags() []TraceOutputTag {
-	return f.tags.TraceOutput()
-}
-
-func (f *Function) RetryTags() []RetryTag {
+// RetryTags returns all retry tags.
+func (f *Function) RetryTags() []*Retry {
 	return f.tags.Retry()
 }
 
+// Prepare generate parameter names and make link between parameters and tags.
 func (f *Function) Prepare() {
 	for idx := range f.input {
 		f.input[idx].Prepare(strconv.Itoa(idx))
@@ -102,14 +105,17 @@ func (f *Function) Prepare() {
 
 // LinkParameters links input/output parameters with tags.
 func (f *Function) LinkParameters() {
-	for _, tag := range f.tags.Input() {
-		for _, param := range f.input {
-			tag.ApplyParameter(param)
+	for _, p := range f.input {
+		for _, tag := range f.Tags().Context() {
+			tag.ApplyParameter(p)
+		}
+		for _, tag := range f.Tags().Input() {
+			tag.ApplyParameter(p)
 		}
 	}
-	for _, tag := range f.tags.Output() {
-		for _, param := range f.output {
-			tag.ApplyParameter(param)
+	for _, p := range f.output {
+		for _, tag := range f.Tags().Output() {
+			tag.ApplyParameter(p)
 		}
 	}
 }

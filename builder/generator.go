@@ -8,14 +8,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go-proxy-gen/internal/definer"
-	"go-proxy-gen/internal/emitter"
-	"go-proxy-gen/internal/generator"
-	"go-proxy-gen/internal/parser"
-	"go-proxy-gen/internal/proxier"
-	"go-proxy-gen/internal/scanner"
-	"go-proxy-gen/internal/templater"
-	"go-proxy-gen/internal/validator"
+	"github.com/ninestems/go-proxy-gen/internal/definer"
+	"github.com/ninestems/go-proxy-gen/internal/emitter"
+	"github.com/ninestems/go-proxy-gen/internal/generator"
+	"github.com/ninestems/go-proxy-gen/internal/parser"
+	"github.com/ninestems/go-proxy-gen/internal/proxier"
+	"github.com/ninestems/go-proxy-gen/internal/scanner"
+	"github.com/ninestems/go-proxy-gen/internal/templater"
+	"github.com/ninestems/go-proxy-gen/internal/validator"
 )
 
 // getModuleName читает имя модуля из файла go.mod по указанному пути.
@@ -24,15 +24,20 @@ func getModuleName(goModPath string) string {
 	if err != nil {
 		log.Fatalf("failed to open go.mod: %v", err)
 	}
-	defer f.Close()
+	defer func() {
+		if err = f.Close(); err != nil {
+			log.Fatalf("failed to close go.mod file: %v", err)
+		}
+	}()
 
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
+	scnnr := bufio.NewScanner(f)
+	for scnnr.Scan() {
+		line := strings.TrimSpace(scnnr.Text())
 		if strings.HasPrefix(line, "module ") {
 			return strings.TrimSpace(strings.TrimPrefix(line, "module "))
 		}
 	}
+	f.Close()
 	log.Fatal("module directive not found in go.mod")
 	return ""
 }

@@ -132,9 +132,7 @@ func (p *{{ $ifacename }}ProxyLogger) {{ .Name }}(
 		p.log.Info(
 			"{{ .Name }}() ends with success",
 		{{- range $i, $tag := .LogOutputTags }}
-			{{- if and (eq $tag.ProxyType 1) (eq $tag.TagType 3)}}
 			zfield("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
-			{{- end }}
 		{{- end }}
 		)
 	}
@@ -142,9 +140,7 @@ func (p *{{ $ifacename }}ProxyLogger) {{ .Name }}(
     p.log.Info(
         "{{ .Name }}() ends with success",
     {{- range $i, $tag := .LogOutputTags }}
-        {{- if and (eq $tag.ProxyType 1) (eq $tag.TagType 3)}}
         zfield("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
-        {{- end }}
     {{- end }}
     )
 	{{- else }}

@@ -4,9 +4,6 @@ package entity
 type Package struct {
 	name       string
 	relative   string
-	logger     ProxyLogger
-	tracer     ProxyTracer
-	retrier    ProxyRetrier
 	imports    []*Import
 	interfaces []*Interface
 }
@@ -15,18 +12,12 @@ type Package struct {
 func NewPackage(
 	name string,
 	relative string,
-	logger ProxyLogger,
-	tracer ProxyTracer,
-	retrier ProxyRetrier,
 	imports []*Import,
 	interfaces []*Interface,
 ) *Package {
 	return &Package{
 		name:       name,
 		relative:   relative,
-		logger:     logger,
-		tracer:     tracer,
-		retrier:    retrier,
 		imports:    imports,
 		interfaces: interfaces,
 	}
@@ -52,30 +43,6 @@ func (p *Package) SetRelative(rel string) {
 	p.relative = rel
 }
 
-func (p *Package) Logger() ProxyLogger {
-	return p.logger
-}
-
-func (p *Package) SetLogger(logger ProxyLogger) {
-	p.logger = logger
-}
-
-func (p *Package) Tracer() ProxyTracer {
-	return p.tracer
-}
-
-func (p *Package) SetTracer(tracer ProxyTracer) {
-	p.tracer = tracer
-}
-
-func (p *Package) Retrier() ProxyRetrier {
-	return p.retrier
-}
-
-func (p *Package) SetRetrier(retrier ProxyRetrier) {
-	p.retrier = retrier
-}
-
 // Imports returns the list of imports.
 func (p *Package) Imports() []*Import {
 	return p.imports
@@ -96,6 +63,7 @@ func (p *Package) SetInterfaces(interfaces []*Interface) {
 	p.interfaces = interfaces
 }
 
+// Prepare make params name and links tags with parameters for each function.
 func (p *Package) Prepare() {
 	for _, i := range p.interfaces {
 		i.Prepare()

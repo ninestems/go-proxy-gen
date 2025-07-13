@@ -1,7 +1,7 @@
 package generator
 
 import (
-	"go-proxy-gen/internal"
+	"github.com/ninestems/go-proxy-gen/internal"
 )
 
 type options struct {
