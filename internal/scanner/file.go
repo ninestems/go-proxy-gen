@@ -1,16 +1,17 @@
 package scanner
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 )
 
 // file parses source to *ast.File.
-func file(filename string) (*ast.File, error) {
-	f, err := parser.ParseFile(token.NewFileSet(), filename, nil, parser.ParseComments)
+func file(path string) (*ast.File, error) {
+	f, err := parser.ParseFile(token.NewFileSet(), path, nil, parser.ParseComments)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("parsing file in path %s as ast.File with error: %w", path, err)
 	}
 
 	return f, nil

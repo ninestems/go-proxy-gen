@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"log"
+	"github.com/ninestems/go-proxy-gen/pkg/log"
 
 	"github.com/ninestems/go-proxy-gen/entity"
 )
@@ -9,28 +9,31 @@ import (
 // Parse parses the specified path and returns a list of interfaces
 // filtered by optional names (if provided).
 func (p *Parser) Parse() (*entity.Package, error) {
-	log.Printf("started parse file in %v\n", p.opt.in)
+	log.Infof("scan file in path '%v': start", p.opt.in)
 
 	pack, err := p.scanner.Scan(p.opt.in, p.opt.ifaces...)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Printf("set relative path %v\n", p.opt.relative)
+	log.Info("scan file: success")
+
+	log.Debugf("interfaces: %v for package '%v' parsed", pack.Interfaces(), pack.Name())
+	log.Debugf("set relative path='%v' for package '%v' parsed", p.opt.relative, pack.Name())
 
 	pack.SetRelative(p.opt.relative)
 
-	log.Printf("preparing package data\n")
+	log.Debug("prepare markdown data")
 
 	pack.Prepare()
 
-	log.Printf("validate reader package\n")
+	log.Info("validate markdown: start")
 
 	if err = p.validator.Validate(pack); err != nil {
 		return nil, err
 	}
 
-	log.Printf("validate package success\n")
+	log.Info("validate markdown: success")
 
 	return pack, nil
 }

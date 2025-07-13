@@ -3,32 +3,40 @@ package main
 
 import (
 	"flag"
-	"log"
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
+	"time"
 
 	"github.com/ninestems/go-proxy-gen/builder"
+	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
 var (
 	// BuildDate need to save date and time of building app.
-	BuildDate string
+	BuildDate = time.Now().UTC().Format(time.RFC3339)
 	// BuildVersion need to save tag of building app.
-	BuildVersion string
+	BuildVersion = "dev"
+	// BuildGoVersion need to show version used to build executable file.
+	BuildGoVersion = runtime.Version()
 )
 
-func main() {
-	log.SetPrefix("[go-proxy-gen] ")
-	log.SetFlags(log.Ldate | log.Ltime | log.LUTC | log.Lshortfile)
+var (
+	// inPathFlag represents path to input files, which need to read.
+	inPathFlg string
+	// outPathFlg represents path to output directory, where need placed generated proxy.
+	outPathFlg string
+	// ifacesFlg list of interfaces which need to get a proxy layers.
+	ifacesFlg string
+	// typesFlg represents list of types proxy, which need to generate.
+	typesFlg string
+	// showVersion represents standard way to show build version and
+	showVersion bool
+)
 
-	var (
-		inPathFlg  string
-		outPathFlg string
-		ifacesFlg  string
-		typesFlg   string
-	)
-
+func prepareFlags() {
 	// default: use GOFILE if not explicitly set
 	defaultIn := os.Getenv("GOFILE")
 	if defaultIn == "" {
@@ -39,21 +47,30 @@ func main() {
 	flag.StringVar(&outPathFlg, "out", "./proxy", "Output directory for generated files")
 	flag.StringVar(&ifacesFlg, "interface", "", "Comma-separated list of interface names")
 	flag.StringVar(&typesFlg, "typesFlg", "log,trace,retry", "Comma-separated list of proxy typesFlg (log,trace,retry)")
+	flag.BoolVar(&showVersion, "version", false, "Print version and exit")
 
 	flag.Parse()
+}
 
-	log.Printf("build version: %s", BuildVersion)
-	log.Printf("build date: %s", BuildDate)
+// show displays build flags and exit.
+func show() bool {
+	if showVersion {
+		fmt.Printf("go-proxy-gen version: %s\n", BuildVersion)
+		fmt.Printf("build date: %s\n", BuildDate)
+		fmt.Printf("go version: %s\n", BuildGoVersion)
+	}
+	return showVersion
+}
 
-	// make paths absolute
+func flagsToParameters() (string, string, []string, []string, error) {
 	in, err := filepath.Abs(inPathFlg)
 	if err != nil {
-		log.Fatalf("invalid input path: %v", err)
+		return "", "", nil, nil, fmt.Errorf("failed to resolve absolute path for -in flag: %w", err)
 	}
 
 	out, err := filepath.Abs(outPathFlg)
 	if err != nil {
-		log.Fatalf("invalid output path: %v", err)
+		return "", "", nil, nil, fmt.Errorf("failed to resolve absolute path for -out flag: %w", err)
 	}
 
 	ifaces := strings.Split(ifacesFlg, ",")
@@ -66,17 +83,25 @@ func main() {
 		types = []string{}
 	}
 
-	gen := builder.Build(
-		in,
-		out,
-		ifaces,
-		types,
-	)
+	return in, out, ifaces, types, nil
+}
 
-	log.Printf("generate is started")
-	if err = gen.Generate(); err != nil {
-		log.Fatalf("generate ends with error: %v", err)
+func main() {
+	log.SetLevel("debug")
+
+	prepareFlags()
+
+	if show() {
+		return
 	}
 
-	log.Printf("generate is done")
+	in, out, ifaces, types, err := flagsToParameters()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	gen := builder.Build(in, out, ifaces, types)
+	if err = gen.Generate(); err != nil {
+		log.Fatalf("generate proxy ends with error: %v", err)
+	}
 }

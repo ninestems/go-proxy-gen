@@ -1,7 +1,11 @@
 // Package templater describe templates using for generate layers.
 package templater
 
-import _ "embed"
+import (
+	_ "embed"
+
+	"github.com/ninestems/go-proxy-gen/pkg/log"
+)
 
 //go:embed files/logger/zap.tmpl
 var loggerZapTemplate string
@@ -16,6 +20,8 @@ func NewLogger(source string) *Logger {
 	if source == "" {
 		source = loggerZapTemplate
 	}
+
+	log.Debugf("templater logger initialized")
 	return &Logger{source}
 }
 

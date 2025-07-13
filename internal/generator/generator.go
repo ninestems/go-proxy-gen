@@ -3,6 +3,7 @@ package generator
 
 import (
 	"github.com/ninestems/go-proxy-gen/internal"
+	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
 // Generator provides functionality for reading source files and generating proxies for them
@@ -18,6 +19,7 @@ func New(opts ...Option) *Generator {
 		opt(&cfg)
 	}
 
+	log.Debugf("generator initialized")
 	return &Generator{
 		parser:  cfg.parser,
 		definer: cfg.definer,

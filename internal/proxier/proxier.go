@@ -3,6 +3,7 @@ package proxier
 
 import (
 	"github.com/ninestems/go-proxy-gen/internal"
+	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
 var _ internal.ProxierI = (*Proxier)(nil)
@@ -24,6 +25,7 @@ func New(opts ...Option) *Proxier {
 		opt(&cfg)
 	}
 
+	log.Debugf("proxier initialized")
 	return &Proxier{
 		lt: cfg.lt,
 		tt: cfg.tt,

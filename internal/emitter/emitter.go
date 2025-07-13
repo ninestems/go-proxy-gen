@@ -3,6 +3,7 @@ package emitter
 
 import (
 	"github.com/ninestems/go-proxy-gen/internal"
+	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
 var _ internal.EmitterI = (*Emitter)(nil)
@@ -19,6 +20,7 @@ func New(opts ...Option) *Emitter {
 		opt(&cfg)
 	}
 
+	log.Debugf("emitter initialized")
 	return &Emitter{
 		path: cfg.path,
 	}
