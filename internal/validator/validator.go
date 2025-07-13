@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"go-proxy-gen/entity"
-	"go-proxy-gen/internal"
+	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/internal"
 )
 
 var _ internal.ValidatorI = (*Validator)(nil)

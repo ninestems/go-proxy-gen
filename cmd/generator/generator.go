@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"go-proxy-gen/builder"
+	"github.com/ninestems/go-proxy-gen/builder"
 )
 
 var (

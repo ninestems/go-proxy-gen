@@ -2,7 +2,7 @@
 package parser
 
 import (
-	"go-proxy-gen/internal"
+	"github.com/ninestems/go-proxy-gen/internal"
 )
 
 var _ internal.ParserI = (*Parser)(nil)

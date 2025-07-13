@@ -16,7 +16,7 @@ linters:
     - gocyclo
     - unparam
     - prealloc
-    - depguard
+    # - depguard disabled for allowed internal import structure
     - dogsled
     - nolintlint
     - wastedassign

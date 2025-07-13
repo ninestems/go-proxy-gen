@@ -2,7 +2,7 @@
 package generator
 
 import (
-	"go-proxy-gen/internal"
+	"github.com/ninestems/go-proxy-gen/internal"
 )
 
 // Generator provides functionality for reading source files and generating proxies for them

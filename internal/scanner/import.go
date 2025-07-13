@@ -3,7 +3,7 @@ package scanner
 import (
 	"go/ast"
 
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // imports extracts imports from ast tree.

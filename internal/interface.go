@@ -2,7 +2,7 @@
 package internal
 
 import (
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // ParserI defines interface for parsing Go packages

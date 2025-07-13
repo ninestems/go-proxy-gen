@@ -3,7 +3,7 @@ package scanner
 import (
 	"slices"
 
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // Scan parses the specified path and returns a list of interfaces

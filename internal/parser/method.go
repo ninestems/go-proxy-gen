@@ -3,7 +3,7 @@ package parser
 import (
 	"log"
 
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // Parse parses the specified path and returns a list of interfaces

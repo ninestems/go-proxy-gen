@@ -4,7 +4,7 @@ import (
 	"go/ast"
 	"strings"
 
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // tags extracts custom tags from all lines of comments.

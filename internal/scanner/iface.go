@@ -3,7 +3,7 @@ package scanner
 import (
 	"go/ast"
 
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // iface extracts interface from ast tree.

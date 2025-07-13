@@ -4,7 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 
-	"go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/entity"
 )
 
 // declaration extracts interfaces from ast tree.
