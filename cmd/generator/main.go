@@ -18,7 +18,7 @@ var (
 	// BuildDate need to save date and time of building app.
 	BuildDate = time.Now().UTC().Format(time.RFC3339)
 	// BuildVersion need to save tag of building app.
-	BuildVersion = "dev"
+	BuildVersion = "UNKNOW"
 	// BuildGoVersion need to show version used to build executable file.
 	BuildGoVersion = runtime.Version()
 )
@@ -32,6 +32,8 @@ var (
 	ifacesFlg string
 	// typesFlg represents list of types proxy, which need to generate.
 	typesFlg string
+	// logLevel represents log level.
+	logLevel string
 	// showVersion represents standard way to show build version and
 	showVersion bool
 )
@@ -45,8 +47,9 @@ func prepareFlags() {
 
 	flag.StringVar(&inPathFlg, "in", defaultIn, "Source to source package or file (default from $GOFILE)")
 	flag.StringVar(&outPathFlg, "out", "./proxy", "Output directory for generated files")
-	flag.StringVar(&ifacesFlg, "interface", "", "Comma-separated list of interface names")
-	flag.StringVar(&typesFlg, "typesFlg", "log,trace,retry", "Comma-separated list of proxy typesFlg (log,trace,retry)")
+	flag.StringVar(&ifacesFlg, "interfaces", "", "Comma-separated list of interface names")
+	flag.StringVar(&typesFlg, "types", "log,trace,retry", "Comma-separated list of proxy typesFlg (log,trace,retry)")
+	flag.StringVar(&logLevel, "log-level", "info", "Set level log to debug, default value info")
 	flag.BoolVar(&showVersion, "version", false, "Print version and exit")
 
 	flag.Parse()
@@ -55,13 +58,14 @@ func prepareFlags() {
 // show displays build flags and exit.
 func show() bool {
 	if showVersion {
-		fmt.Printf("go-proxy-gen version: %s\n", BuildVersion)
+		fmt.Printf("version: %s\n", BuildVersion)
 		fmt.Printf("build date: %s\n", BuildDate)
 		fmt.Printf("go version: %s\n", BuildGoVersion)
 	}
 	return showVersion
 }
 
+// flagsToParameters prepare parameters.
 func flagsToParameters() (string, string, []string, []string, error) {
 	in, err := filepath.Abs(inPathFlg)
 	if err != nil {
@@ -87,11 +91,12 @@ func flagsToParameters() (string, string, []string, []string, error) {
 }
 
 func main() {
-	log.SetLevel("debug")
-
 	prepareFlags()
 
+	log.SetLevel(logLevel)
+
 	if show() {
+		// only for version print
 		return
 	}
 
