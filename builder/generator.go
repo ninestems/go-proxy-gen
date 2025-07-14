@@ -3,10 +3,11 @@ package builder
 
 import (
 	"bufio"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/ninestems/go-proxy-gen/pkg/log"
 
 	"github.com/ninestems/go-proxy-gen/internal/definer"
 	"github.com/ninestems/go-proxy-gen/internal/emitter"
@@ -86,45 +87,37 @@ func Build(
 	in, out string,
 	ifaces, types []string,
 ) *generator.Generator {
-	log.Printf("initializing tool")
-	log.Printf("input path: %v", in)
-	log.Printf("output path: %v", out)
-	log.Printf("interfaces list: %v", ifaces)
-	log.Printf("proxy layers types: %v", types)
+	log.Info("initializing tool: start")
 
-	log.Printf("initializing scanner")
-	scnner := scanner.New()
+	log.Debugf("input path: %v", in)
+	log.Debugf("output path: %v", out)
+	log.Debugf("interfaces list: %v", ifaces)
+	log.Debugf("proxy layers types: %v", types)
 
-	log.Printf("initializing validator")
-	vldtr := validator.New()
-
-	log.Printf("initializing parser")
 	pars := parser.New(
 		parser.WithInPath(in),
 		parser.WithRelativePath(getRelative(in)),
 		parser.WithIfaces(ifaces),
-		parser.WithScanner(scnner),
-		parser.WithValidator(vldtr),
+		parser.WithScanner(scanner.New()),
+		parser.WithValidator(validator.New()),
 	)
 
-	log.Printf("initializing proxier")
 	prxr := proxier.New(
 		proxier.WithLoggerTemplater(templater.NewLogger("")),
 		proxier.WithTracerTemplater(templater.NewTracer("")),
-		proxier.WithRetrierTemplater(nil),
 	)
 
-	log.Printf("initializing emitter")
 	emtr := emitter.New(
 		emitter.WithPath(out),
 	)
 
-	log.Printf("initializing definer")
 	def := definer.New(
+		definer.WithOutPath(out),
 		definer.WithProxier(prxr),
 		definer.WithEmitter(emtr),
 	)
 
+	log.Info("initializing tool: success")
 	return generator.New(
 		generator.WithParser(pars),
 		generator.WithDefiner(def),

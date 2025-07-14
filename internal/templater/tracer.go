@@ -1,6 +1,10 @@
 package templater
 
-import _ "embed"
+import (
+	_ "embed"
+
+	"github.com/ninestems/go-proxy-gen/pkg/log"
+)
 
 //go:embed files/tracer/ot.tmpl
 var tracerOpenTelemetryTemplate string
@@ -15,6 +19,8 @@ func NewTracer(source string) *Tracer {
 	if source == "" {
 		source = tracerOpenTelemetryTemplate
 	}
+
+	log.Debugf("templater tracer initialized")
 	return &Tracer{source}
 }
 

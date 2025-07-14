@@ -3,6 +3,7 @@ package definer
 
 import (
 	"github.com/ninestems/go-proxy-gen/internal"
+	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
 var _ internal.DefinerI = (*Definer)(nil)
@@ -20,6 +21,8 @@ func New(opts ...Option) *Definer {
 	for _, opt := range opts {
 		opt(&cfg)
 	}
+
+	log.Debugf("definer initialized")
 	return &Definer{
 		opt:     &cfg,
 		proxier: cfg.proxier,
