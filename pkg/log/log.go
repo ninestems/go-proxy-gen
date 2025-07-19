@@ -17,6 +17,13 @@ var (
 	err   = log.New(os.Stderr, "[GO-PROXY-GEN] [ERROR] ", flags)
 )
 
+// SetWriters overrides output writers for testing.
+func SetWriters(stdout, stderr *os.File) {
+	info = log.New(stdout, "[GO-PROXY-GEN] [INFO] ", flags)
+	debug = log.New(stdout, "[GO-PROXY-GEN] [DEBUG] ", flags)
+	err = log.New(stderr, "[GO-PROXY-GEN] [ERROR] ", flags)
+}
+
 // SetLevel sets logger level.
 func SetLevel(in string) {
 	level = strings.ToUpper(in)
