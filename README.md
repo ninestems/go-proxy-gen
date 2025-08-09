@@ -14,6 +14,33 @@ This package was created with two goals in mind:
 
 You just describe what you want — and the tool takes care of the rest.
 
+## Installation
+
+You can install the package using one of the following methods:
+
+### Using `go install`
+
+```bash
+go install github.com/ninestems/go-proxy-gen@latest
+````
+
+This command downloads and installs the latest version of the package directly to your GOPATH/bin or GOBIN directory. 
+Make sure your $GOPATH/bin is in your PATH to run the tool easily.
+
+### Build from source and manually move binary (recommended)
+
+If you prefer to build the binary yourself:
+```bash
+  git clone https://github.com/ninestems/go-proxy-gen.git
+  cd go-proxy-gen
+  make build
+```
+
+Then move the compiled binary to your $GOPATH/bin or any directory in your PATH:
+```bash
+  mv go-proxy-gen $GOPATH/bin/
+```
+
 ## Roadmap and Version criteria
 
 The project is in active development.  
