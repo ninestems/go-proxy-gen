@@ -70,6 +70,70 @@ const (
 	ProxyTypeRetrier
 )
 
+// String implements stringer for ProxyType.
+func (p ProxyType) String() string {
+	switch p {
+	case ProxyTypeUndefined:
+		return "undefined"
+	case ProxyTypeLogger:
+		return "logger"
+	case ProxyTypeTracer:
+		return "tracer"
+	case ProxyTypeRetrier:
+		return "retrier"
+	default:
+		return "undefined"
+	}
+}
+
+// ValueType describe which type of source in tag.
+type ValueType uint32
+
+const (
+	// ValueTypeUndefined for undefined or unknown value type.
+	ValueTypeUndefined ValueType = iota
+	// ValueTypeBool represents a boolean value (true or false).
+	ValueTypeBool
+	// ValueTypeInt represents a signed integer of platform-dependent size.
+	ValueTypeInt
+	// ValueTypeInt8 represents a signed 8-bit integer.
+	ValueTypeInt8
+	// ValueTypeInt16 represents a signed 16-bit integer.
+	ValueTypeInt16
+	// ValueTypeInt32 represents a signed 32-bit integer.
+	ValueTypeInt32
+	// ValueTypeInt64 represents a signed 64-bit integer.
+	ValueTypeInt64
+	// ValueTypeUint represents an unsigned integer of platform-dependent size.
+	ValueTypeUint
+	// ValueTypeUint8 represents an unsigned 8-bit integer.
+	ValueTypeUint8
+	// ValueTypeUint16 represents an unsigned 16-bit integer.
+	ValueTypeUint16
+	// ValueTypeUint32 represents an unsigned 32-bit integer.
+	ValueTypeUint32
+	// ValueTypeUint64 represents an unsigned 64-bit integer.
+	ValueTypeUint64
+	// ValueTypeUintptr represents an unsigned integer large enough to store a pointer address.
+	ValueTypeUintptr
+	// ValueTypeFloat32 represents a 32-bit floating point number.
+	ValueTypeFloat32
+	// ValueTypeFloat64 represents a 64-bit floating point number.
+	ValueTypeFloat64
+	// ValueTypeComplex64 represents a complex number with float32 real and imaginary parts.
+	ValueTypeComplex64
+	// ValueTypeComplex128 represents a complex number with float64 real and imaginary parts.
+	ValueTypeComplex128
+	// ValueTypeString represents a string value.
+	ValueTypeString
+	// ValueTypeByte represents a byte value (alias for uint8).
+	ValueTypeByte
+	// ValueTypeRune represents a rune value (alias for int32, Unicode code point).
+	ValueTypeRune
+	// ValueTypeStruct represents a struct type.
+	ValueTypeStruct
+)
+
 // ProxyLogger describe various logger types for proxy logger.
 type ProxyLogger uint32
 

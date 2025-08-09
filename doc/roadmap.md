@@ -36,5 +36,5 @@ This roadmap reflects the core evolution plan of `go-proxy-gen`. Milestones alig
 ## Planned
 
 - [ ] Template override support
-- [ ] Interface parsing for unnamed parameters
+- [x] Interface parsing for unnamed parameters
 - [ ] Plugin-style design for extensibility

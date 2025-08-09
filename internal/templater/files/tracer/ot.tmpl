@@ -90,7 +90,7 @@ func (p *{{ $ifacename }}ProxyTracer) {{ .Name }}(
         attr("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
         {{- end }}
         {{- range $i, $tag := .TraceInputTags }}
-        attr("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+        attr("{{ $tag.Alias}}", {{ $tag.Call }}),
     {{- end }}
     )
     {{- end }}
@@ -121,7 +121,7 @@ func (p *{{ $ifacename }}ProxyTracer) {{ .Name }}(
     {{- if (len .TraceOutputTags) }}
         span.SetAttributes(
         {{- range $i, $tag := .TraceOutputTags }}
-            attr("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+            attr("{{ $tag.Alias}}", {{ $tag.Call }}),
         {{- end }}
         )
     {{- end }}
@@ -131,7 +131,7 @@ func (p *{{ $ifacename }}ProxyTracer) {{ .Name }}(
     {{- if (len .TraceOutputTags) }}
     span.SetAttributes(
     {{- range $i, $tag := .TraceOutputTags }}
-        attr("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+        attr("{{ $tag.Alias}}", {{ $tag.Call }}),
     {{- end }}
     )
     {{- end }}

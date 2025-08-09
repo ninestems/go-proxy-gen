@@ -17,9 +17,9 @@ type Tracer interface {
 	// Example is a some method.
 	// 
 	// goproxygen:
-	//  trace ctx::traceID::trace_id
-	//  trace input::some_input::input:Input::F
-	//  trace output::some_output::Output::D
+	//  trace ctx::trace_id::traceID
+	//  trace input::input:Input::F::some_input
+	//  trace output::Output::D::some_output
 	Example(ctx context.Context, input *Input) (*Output, error)
 }
 

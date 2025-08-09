@@ -17,9 +17,9 @@ type Logger interface {
 	// Example is a some method.
 	// 
 	// goproxygen: 
-	//  log ctx::traceID::trace_id
-	//  log input::some_input::input:Input::F
-	//  log output::some_output::Output::D
+	//  log ctx::trace_id::traceID
+	//  log input::input:Input::F::some_input
+	//  log output::Output::D::some_output
 	//  log output::error::Error()
 	Example(ctx context.Context, input *Input) (*Output, error)
 }

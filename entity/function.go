@@ -27,29 +27,14 @@ func (f *Function) Name() string {
 	return f.name
 }
 
-// SetName sets the function name.
-func (f *Function) SetName(name string) {
-	f.name = name
-}
-
 // Input returns the input parameters of the function.
 func (f *Function) Input() []*Parameter {
 	return f.input
 }
 
-// SetInput sets the input parameters of the function.
-func (f *Function) SetInput(params []*Parameter) {
-	f.input = params
-}
-
 // Output returns the output parameters of the function.
 func (f *Function) Output() []*Parameter {
 	return f.output
-}
-
-// SetOutput sets the output parameters of the function.
-func (f *Function) SetOutput(params []*Parameter) {
-	f.output = params
 }
 
 // Tags returns main object which contains all tags.

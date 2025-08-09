@@ -100,7 +100,7 @@ func (p *{{ $ifacename }}ProxyLogger) {{ .Name }}(
 		zap.Any("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
 	{{- end }}
 	{{- range $i, $tag := .LogInputTags }}
-		zfield("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+		zfield("{{ $tag.Alias }}", {{ $tag.Call }}),
 	{{- end }}
 	)
 
@@ -132,7 +132,7 @@ func (p *{{ $ifacename }}ProxyLogger) {{ .Name }}(
 		p.log.Info(
 			"{{ .Name }}() ends with success",
 		{{- range $i, $tag := .LogOutputTags }}
-			zfield("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+			zfield("{{ $tag.Alias}}", {{ $tag.Call }}),
 		{{- end }}
 		)
 	}
@@ -140,7 +140,7 @@ func (p *{{ $ifacename }}ProxyLogger) {{ .Name }}(
     p.log.Info(
         "{{ .Name }}() ends with success",
     {{- range $i, $tag := .LogOutputTags }}
-        zfield("{{ $tag.Alias}}", {{ $tag.Name }}.{{ $tag.Key }}),
+        zfield("{{ $tag.Alias}}", {{ $tag.Call }}),
     {{- end }}
     )
 	{{- else }}

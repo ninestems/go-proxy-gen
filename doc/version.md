@@ -9,12 +9,12 @@ The process follows a progressive, quality-focused approach.
 
 > First functional and testable version of the tool.
 
-- [ ] 40%+ test coverage for core logic (`parser`, `definer`, `generator`)
-- [ ] CLI flag parsing (`--in`, `--out`, `--interface`, `--types`)
-- [ ] Proxy generation for logging layer
-- [ ] Proxy generation for tracing layer
-- [ ] Clean package structure (internal/cmd/entity/...)
-- [ ] Documentation includes:
+- [x] 40%+ test coverage for core logic (`parser`, `definer`, `generator`)
+- [x] CLI flag parsing (`--in`, `--out`, `--interface`, `--types`)
+- [x] Proxy generation for logging layer
+- [x] Proxy generation for tracing layer
+- [x] Clean package structure (internal/cmd/entity/...)
+- [x] Documentation includes:
     - Architecture and soft design
     - Roadmap
     - Examples for logger/tracer tags

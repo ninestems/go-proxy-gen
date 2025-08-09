@@ -19,7 +19,7 @@ func NewTagIO(
 	alias string,
 	name string,
 	source string,
-	key string,
+	accessor string,
 	ttype TagType,
 	ptype ProxyType,
 ) *IO {
@@ -27,8 +27,8 @@ func NewTagIO(
 		alias:  alias,
 		name:   name,
 		source: source,
-		key:    key,
-		Common: NewCommon(ttype, ptype),
+		key:    accessor,
+		Common: NewCommon(ttype, ptype, define(source)),
 	}
 }
 
@@ -50,6 +50,14 @@ func (t *IO) Source() string {
 // Key returns key.
 func (t *IO) Key() string {
 	return t.key
+}
+
+func (t *IO) Call() string {
+	if t.IsStructType() {
+		return t.name + "." + t.key
+	}
+
+	return t.name
 }
 
 // IsEmptyParameter check linked parameter.
@@ -87,8 +95,11 @@ func (t *IO) ApplyParameter(p *Parameter) {
 	}
 
 	t.parameter = p   // sets parent parameter
-	if t.name == "" { // if name of param empty, means user does not know param alias, set generated name.
+	if t.name == "" { // if name of param in tag empty, means user does not know param alias, set generated name.
 		t.name = p.Name()
+	}
+	if t.alias == "" {
+		t.alias = p.Name()
 	}
 }
 
@@ -100,7 +111,6 @@ type ContextIO struct {
 // NewIOContextTag builds new instance of ContextIO.
 func NewIOContextTag(
 	alias string,
-	name string,
 	source string,
 	key string,
 	ptype ProxyType,
@@ -108,7 +118,7 @@ func NewIOContextTag(
 	return &ContextIO{
 		IO: NewTagIO(
 			alias,
-			name,
+			"", // context tag always created with empty name
 			source,
 			key,
 			TagTypeContext,
@@ -127,7 +137,7 @@ func NewIOInputTag(
 	alias string,
 	name string,
 	source string,
-	key string,
+	accessor string,
 	ptype ProxyType,
 ) *InputIO {
 	return &InputIO{
@@ -135,7 +145,7 @@ func NewIOInputTag(
 			alias,
 			name,
 			source,
-			key,
+			accessor,
 			TagTypeInput,
 			ptype,
 		),
@@ -152,7 +162,7 @@ func NewIOOutputTag(
 	alias string,
 	name string,
 	source string,
-	key string,
+	accessor string,
 	ptype ProxyType,
 ) *OutputIO {
 	return &OutputIO{
@@ -160,7 +170,7 @@ func NewIOOutputTag(
 			alias,
 			name,
 			source,
-			key,
+			accessor,
 			TagTypeContext,
 			ptype,
 		),
