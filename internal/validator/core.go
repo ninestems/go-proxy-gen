@@ -121,25 +121,46 @@ func validateInputIOTag(in *entity.InputIO) error {
 	}
 
 	if in.Alias() == "" {
-		return entity.ErrEmptyInputTagAlias
+		return fmt.Errorf(
+			"tag with tag type '%v' & proxy type '%v': %w",
+			in.TType(),
+			in.PType(),
+			entity.ErrEmptyInputTagAlias,
+		)
 	}
 
-	if in.Key() == "" {
-		return entity.ErrEmptyInputTagKey
+	if in.IsStructType() && in.Key() == "" {
+		return fmt.Errorf(
+			"tag with tag type '%v' & proxy type '%v': %w",
+			in.TType(),
+			in.PType(),
+			entity.ErrEmptyInputTagKey,
+		)
 	}
 
 	if in.IsEmptyName() {
-		return entity.ErrEmptyInputTagName
+		return fmt.Errorf(
+			"tag with tag type '%v' & proxy type '%v': %w",
+			in.TType(),
+			in.PType(),
+			entity.ErrEmptyInputTagName,
+		)
 	}
 
 	if in.Source() == "" {
-		return entity.ErrEmptyInputTagSource
+		return fmt.Errorf(
+			"tag with tag type '%v' & proxy type '%v': %w",
+			in.TType(),
+			in.PType(),
+			entity.ErrEmptyInputTagSource,
+		)
 	}
 
 	if in.IsEmptyParameter() {
 		return fmt.Errorf(
-			"alias='%v',source='%v': %w", in.Alias(),
-			in.Source(),
+			"tag with tag type '%v' & proxy type '%v': %w",
+			in.TType(),
+			in.PType(),
 			entity.ErrEmptyInputTagParameter,
 		)
 	}

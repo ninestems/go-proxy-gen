@@ -35,19 +35,9 @@ func (p *Parameter) Name() string {
 	return p.name
 }
 
-// SetName sets the parameter name.
-func (p *Parameter) SetName(name string) {
-	p.name = name
-}
-
 // Source returns the parameter source type.
 func (p *Parameter) Source() string {
 	return p.source
-}
-
-// SetSource sets the parameter source type.
-func (p *Parameter) SetSource(source string) {
-	p.source = source
 }
 
 // Prepare prepares parameter for latest generate.

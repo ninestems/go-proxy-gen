@@ -21,7 +21,7 @@ func Test_tags(t *testing.T) {
 		wantOutput []*entity.OutputIO
 	}{
 		{
-			name: "good parse tags",
+			name: "good parse tags logger",
 			args: args{
 				in: &ast.CommentGroup{
 					List: []*ast.Comment{
@@ -29,36 +29,54 @@ func Test_tags(t *testing.T) {
 							Text: "// goproxygen:",
 						},
 						{
-							Text: "// log ctx::log_traceID::trace_id",
+							Text: "// log ctx::trace_id::log_traceID",
 						},
 						{
-							Text: "//  log input::log_some_input::in:entity.Example::Field",
+							Text: "//  log input::in:entity.Example::Field::log_some_input",
 						},
 						{
-							Text: "//  log output::log_some_output::entity.Example::Field",
-						},
-						{
-							Text: "//  trace ctx::trace_traceID::trace_id",
-						},
-						{
-							Text: "//  trace input::trace_some_input::in:entity.Example::Field",
-						},
-						{
-							Text: "//  trace output::trace_some_output::entity.Example::Field",
+							Text: "//  log output::entity.Example::Field::log_some_output",
 						},
 					},
 				},
 			},
 			wantCtx: []*entity.ContextIO{
 				entity.NewIOContextTag("log_traceID", "context.Context", "trace_id", entity.ProxyTypeLogger),
-				entity.NewIOContextTag("trace_traceID", "context.Context", "trace_id", entity.ProxyTypeTracer),
 			},
 			wantInput: []*entity.InputIO{
 				entity.NewIOInputTag("log_some_input", "in", "entity.Example", "Field", entity.ProxyTypeLogger),
-				entity.NewIOInputTag("trace_some_input", "in", "entity.Example", "Field", entity.ProxyTypeTracer),
 			},
 			wantOutput: []*entity.OutputIO{
 				entity.NewIOOutputTag("log_some_output", "", "entity.Example", "Field", entity.ProxyTypeLogger),
+			},
+		},
+		{
+			name: "good parse tags tracer",
+			args: args{
+				in: &ast.CommentGroup{
+					List: []*ast.Comment{
+						{
+							Text: "// goproxygen:",
+						},
+						{
+							Text: "//  trace ctx::trace_id::trace_traceID",
+						},
+						{
+							Text: "//  trace input::in:entity.Example::Field::trace_some_input",
+						},
+						{
+							Text: "//  trace output::entity.Example::Field::trace_some_output",
+						},
+					},
+				},
+			},
+			wantCtx: []*entity.ContextIO{
+				entity.NewIOContextTag("trace_traceID", "context.Context", "trace_id", entity.ProxyTypeTracer),
+			},
+			wantInput: []*entity.InputIO{
+				entity.NewIOInputTag("trace_some_input", "in", "entity.Example", "Field", entity.ProxyTypeTracer),
+			},
+			wantOutput: []*entity.OutputIO{
 				entity.NewIOOutputTag("trace_some_output", "", "entity.Example", "Field", entity.ProxyTypeTracer),
 			},
 		},

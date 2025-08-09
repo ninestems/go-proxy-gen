@@ -52,6 +52,14 @@ func (t *IO) Key() string {
 	return t.key
 }
 
+func (t *IO) Call() string {
+	if t.IsStructType() {
+		return t.name + "." + t.key
+	}
+
+	return t.name
+}
+
 // IsEmptyParameter check linked parameter.
 func (t *IO) IsEmptyParameter() bool {
 	return t.parameter == nil
@@ -90,6 +98,9 @@ func (t *IO) ApplyParameter(p *Parameter) {
 	if t.name == "" { // if name of param in tag empty, means user does not know param alias, set generated name.
 		t.name = p.Name()
 	}
+	if t.alias == "" {
+		t.alias = p.Name()
+	}
 }
 
 // ContextIO describe tag for context.
@@ -126,7 +137,7 @@ func NewIOInputTag(
 	alias string,
 	name string,
 	source string,
-	key string,
+	accessor string,
 	ptype ProxyType,
 ) *InputIO {
 	return &InputIO{
@@ -134,7 +145,7 @@ func NewIOInputTag(
 			alias,
 			name,
 			source,
-			key,
+			accessor,
 			TagTypeInput,
 			ptype,
 		),

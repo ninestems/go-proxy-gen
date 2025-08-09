@@ -230,7 +230,7 @@ func Test_validateTags(t *testing.T) {
 			err: entity.ErrEmptyInputTagKey,
 		},
 		{
-			name: "input io empty key",
+			name: "input io empty name",
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{

@@ -70,6 +70,22 @@ const (
 	ProxyTypeRetrier
 )
 
+// String implements stringer for ProxyType.
+func (p ProxyType) String() string {
+	switch p {
+	case ProxyTypeUndefined:
+		return "undefined"
+	case ProxyTypeLogger:
+		return "logger"
+	case ProxyTypeTracer:
+		return "tracer"
+	case ProxyTypeRetrier:
+		return "retrier"
+	default:
+		return "undefined"
+	}
+}
+
 // ValueType describe which type of source in tag.
 type ValueType uint32
 

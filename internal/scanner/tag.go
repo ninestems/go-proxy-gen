@@ -44,11 +44,11 @@ func tags(in *ast.CommentGroup) *entity.Tags {
 			info := strings.Split(data[1], "::")
 			switch info[0] {
 			case "ctx":
-				out.AddContext(extractContextIOTag(info[1:], proxyType))
+				out.AddContext(extractContextTag(info[1:], proxyType))
 			case "input":
-				out.AddInput(extractInputIOTag(info[1:], proxyType))
+				out.AddInput(extractInputTag(info[1:], proxyType))
 			case "output":
-				out.AddOutput(extractOutputIOTag(info[1:], proxyType))
+				out.AddOutput(extractOutputTag(info[1:], proxyType))
 			case "retry":
 				out.AddRetry(extractRetryTag(info[1:], proxyType))
 			}
@@ -58,7 +58,7 @@ func tags(in *ast.CommentGroup) *entity.Tags {
 	return &out
 }
 
-func extractContextIOTag(in []string, ptype entity.ProxyType) *entity.ContextIO {
+func extractContextTag(in []string, ptype entity.ProxyType) *entity.ContextIO {
 	var (
 		alias string
 		key   string
@@ -78,9 +78,14 @@ func extractContextIOTag(in []string, ptype entity.ProxyType) *entity.ContextIO 
 
 func extractIOLabels(in []string) (name string, source string, accessor string, alias string) {
 	data := strings.Split(in[0], ":")
-	source = data[0]
-	if len(data) > 1 {
+
+	switch len(data) {
+	case 1:
+		source = data[0]
+	case 2:
 		name, source = data[0], data[1]
+		accessor = name
+		alias = name
 	}
 
 	switch len(in) {
@@ -94,12 +99,12 @@ func extractIOLabels(in []string) (name string, source string, accessor string, 
 	return
 }
 
-func extractInputIOTag(in []string, ptype entity.ProxyType) *entity.InputIO {
+func extractInputTag(in []string, ptype entity.ProxyType) *entity.InputIO {
 	name, source, accessor, alias := extractIOLabels(in)
 	return entity.NewIOInputTag(alias, name, source, accessor, ptype)
 }
 
-func extractOutputIOTag(in []string, ptype entity.ProxyType) *entity.OutputIO {
+func extractOutputTag(in []string, ptype entity.ProxyType) *entity.OutputIO {
 	name, source, accessor, alias := extractIOLabels(in)
 	return entity.NewIOOutputTag(alias, name, source, accessor, ptype)
 }
