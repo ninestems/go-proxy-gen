@@ -1,4 +1,4 @@
-VERSION=0.1.0-alpha
+VERSION=v0.1.0-alpha
 DATE=$(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 
 
