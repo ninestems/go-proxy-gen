@@ -165,13 +165,9 @@ func TestFunction_LinkParameters(t *testing.T) {
 		output []*Parameter
 		tags   *Tags
 	}
-	type want struct {
-		tags *Tags
-	}
 	tests := []struct {
 		name   string
 		fields fields
-		want   want
 	}{
 		{
 			name: "correct link parameters",

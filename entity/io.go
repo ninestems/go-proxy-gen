@@ -52,6 +52,7 @@ func (t *IO) Key() string {
 	return t.key
 }
 
+// Call builds and return string to call parameter.
 func (t *IO) Call() string {
 	if t.IsStructType() {
 		return t.name + "." + t.key

@@ -96,6 +96,10 @@ To ensure proper proxy generation, your functions must follow these constraints:
   The first parameter of the function must be of type `context.Context`.  
   This is essential for tracing, logging, and value propagation.
 
+### Benchmark
+
+[→ View benchmark](https://github.com/ninestems/go-proxy-gen-benchmark)  
+
 ### Examples
 
 - [logger example](doc/logger.md)
