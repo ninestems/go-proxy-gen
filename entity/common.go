@@ -5,13 +5,19 @@ package entity
 type Common struct {
 	ttype TagType
 	ptype ProxyType
+	vtype ValueType
 }
 
 // NewCommon builds new instance of Common.
-func NewCommon(ttype TagType, ptype ProxyType) *Common {
+func NewCommon(
+	ttype TagType,
+	ptype ProxyType,
+	vtype ValueType,
+) *Common {
 	return &Common{
 		ttype: ttype,
 		ptype: ptype,
+		vtype: vtype,
 	}
 }
 
@@ -23,6 +29,11 @@ func (c *Common) TType() TagType {
 // PType return parameter type of tag.
 func (c *Common) PType() ProxyType {
 	return c.ptype
+}
+
+// VType return type of contains value.
+func (c *Common) VType() ValueType {
+	return c.vtype
 }
 
 // IsForLogger returns true if tag for logger setting.

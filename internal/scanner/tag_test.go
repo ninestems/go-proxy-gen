@@ -50,8 +50,8 @@ func Test_tags(t *testing.T) {
 				},
 			},
 			wantCtx: []*entity.ContextIO{
-				entity.NewIOContextTag("log_traceID", "", "context.Context", "trace_id", entity.ProxyTypeLogger),
-				entity.NewIOContextTag("trace_traceID", "", "context.Context", "trace_id", entity.ProxyTypeTracer),
+				entity.NewIOContextTag("log_traceID", "context.Context", "trace_id", entity.ProxyTypeLogger),
+				entity.NewIOContextTag("trace_traceID", "context.Context", "trace_id", entity.ProxyTypeTracer),
 			},
 			wantInput: []*entity.InputIO{
 				entity.NewIOInputTag("log_some_input", "in", "entity.Example", "Field", entity.ProxyTypeLogger),

@@ -59,7 +59,7 @@ func prepareFlags() {
 func show() bool {
 	if showVersion {
 		fmt.Printf("version: %s\n", BuildVersion)
-		fmt.Printf("build date: %s\n", BuildDate)
+		fmt.Printf("build date utc: %s\n", BuildDate)
 		fmt.Printf("go version: %s\n", BuildGoVersion)
 	}
 	return showVersion

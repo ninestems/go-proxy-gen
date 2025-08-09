@@ -38,8 +38,7 @@ func getModuleName(goModPath string) string {
 			return strings.TrimSpace(strings.TrimPrefix(line, "module "))
 		}
 	}
-	f.Close()
-	log.Fatal("module directive not found in go.mod")
+
 	return ""
 }
 
@@ -66,6 +65,10 @@ func findGoModRoot(startPath string) string {
 func getRelative(filePath string) string {
 	moduleRoot := findGoModRoot(filePath)
 	moduleName := getModuleName(filepath.Join(moduleRoot, "go.mod"))
+
+	if moduleName == "" {
+		log.Fatalf("failed to find go.mod for module root: %s", moduleRoot)
+	}
 
 	fileDir := filepath.Dir(filePath)
 

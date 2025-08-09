@@ -12,4 +12,4 @@ lint:
 	golangci-lint run ./... --config .golangci.yml
 
 build:
-	go build -ldflags "-X 'main.Version=$(VERSION)' -X 'main.BuildDate=$(DATE)'" -o go-proxy-gen ./cmd/generator
+	go build -ldflags "-X 'main.BuildVersion=$(VERSION)' -X 'main.BuildDate=$(DATE)'" -o go-proxy-gen ./cmd/generator

@@ -144,7 +144,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("", "", "", "", entity.ProxyTypeUndefined),
+					entity.NewIOContextTag("", "", "", entity.ProxyTypeUndefined),
 				},
 				input:  nil,
 				output: nil,
@@ -156,7 +156,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("", "", "", "", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("", "", "", entity.ProxyTypeLogger),
 				},
 				input:  nil,
 				output: nil,
@@ -168,7 +168,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "", entity.ProxyTypeLogger),
 				},
 				input:  nil,
 				output: nil,
@@ -180,7 +180,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input:  nil,
 				output: nil,
@@ -192,7 +192,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("", "", "", "", entity.ProxyTypeUndefined),
@@ -206,7 +206,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("", "", "", "", entity.ProxyTypeLogger),
@@ -220,7 +220,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "", "", "", entity.ProxyTypeLogger),
@@ -234,7 +234,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
@@ -248,7 +248,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "some name", "", "some key", entity.ProxyTypeLogger),
@@ -262,7 +262,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "some name", "some source", "some key", entity.ProxyTypeLogger),
@@ -276,7 +276,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
@@ -290,7 +290,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
@@ -307,7 +307,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
@@ -324,7 +324,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
@@ -341,7 +341,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
@@ -358,7 +358,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
@@ -375,7 +375,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
@@ -393,7 +393,7 @@ func Test_validateTags(t *testing.T) {
 			args: args{
 				in: entity.Tags{},
 				ctx: []*entity.ContextIO{
-					entity.NewIOContextTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
+					entity.NewIOContextTag("some alias", "", "some key", entity.ProxyTypeLogger),
 				},
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
