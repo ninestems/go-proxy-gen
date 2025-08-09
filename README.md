@@ -14,12 +14,13 @@ This package was created with two goals in mind:
 
 You just describe what you want — and the tool takes care of the rest.
 
-## Roadmap
+## Roadmap and Version criteria
 
 The project is in active development.  
 You can track planned features and current progress in the roadmap.
 
-[→ View roadmap](doc/roadmap.md)
+[→ View roadmap](doc/roadmap.md)  
+[→ View criteria](doc/version.md)  
 
 ## Сonfigure tool as executable
 
