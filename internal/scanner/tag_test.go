@@ -80,6 +80,30 @@ func Test_tags(t *testing.T) {
 				entity.NewIOOutputTag("trace_some_output", "", "entity.Example", "Field", entity.ProxyTypeTracer),
 			},
 		},
+		{
+			name: "good parse tags retry",
+			args: args{
+				in: &ast.CommentGroup{
+					List: []*ast.Comment{
+						{
+							Text: "// goproxygen:",
+						},
+						{
+							Text: "//  retry ",
+						},
+					},
+				},
+			},
+			wantCtx: []*entity.ContextIO{
+				entity.NewIOContextTag("trace_traceID", "context.Context", "trace_id", entity.ProxyTypeTracer),
+			},
+			wantInput: []*entity.InputIO{
+				entity.NewIOInputTag("trace_some_input", "in", "entity.Example", "Field", entity.ProxyTypeTracer),
+			},
+			wantOutput: []*entity.OutputIO{
+				entity.NewIOOutputTag("trace_some_output", "", "entity.Example", "Field", entity.ProxyTypeTracer),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

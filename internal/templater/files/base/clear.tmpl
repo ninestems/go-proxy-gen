@@ -1,0 +1,30 @@
+{{- define "clear-imports"}}
+    // clear template
+    source "{{ .Relative }}/{{ .Name }}"
+    {{- /* printing imports: start */}}
+    {{- range .Imports }}
+    {{ .Path }}
+    {{- end }}
+    {{- /* printing imports: end */}}
+{{- end }}
+
+{{- define "clear-body"}}
+    {{- $function :=  . }}
+    {{- /* calling functions in proxy start */}}
+    {{- /* list of return has more then zero number of parameters */}}
+    {{ if ge (len $function.Output) 1 }}
+        {{- range $i, $p := $function.Output }}
+            {{- if $i }}, {{ end }}{{ $p.Name }}
+        {{- end }} = p.src.{{ $function.Name }}(
+        {{- /* list of return equal zero */}}
+    {{- else }}p.src.{{ $function.Name }}(
+    {{- end }}
+    {{- /* calling functions in proxy end */}}
+
+    {{- /* start make input params */}}
+    {{- range $i, $p := $function.Input }}
+        {{- if $i }}, {{ end }}{{ $p.Name }}
+    {{- end }})
+    {{- /* end make input params */}}
+    return
+{{- end }}

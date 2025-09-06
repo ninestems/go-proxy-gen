@@ -108,6 +108,7 @@ func Build(
 	prxr := proxier.New(
 		proxier.WithLoggerTemplater(templater.NewLogger("")),
 		proxier.WithTracerTemplater(templater.NewTracer("")),
+		proxier.WithRetrierTemplater(templater.NewRetrier("")),
 	)
 
 	emtr := emitter.New(

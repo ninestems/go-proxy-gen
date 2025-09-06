@@ -6,8 +6,10 @@ import (
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
-//go:embed files/tracer/ot.tmpl
-var tracerOpenTelemetryTemplate string
+var (
+	//go:embed files/tracer/opentelemetry/opentelemetry.tmpl
+	tracerOpenTelemetryTemplate string
+)
 
 // Tracer describe ways to get string template of tracer.
 type Tracer struct {
@@ -17,7 +19,7 @@ type Tracer struct {
 // NewTracer builds new instance of Tracer
 func NewTracer(source string) *Tracer {
 	if source == "" {
-		source = tracerOpenTelemetryTemplate
+		source = commonTemplate + tracerOpenTelemetryTemplate
 	}
 
 	log.Debugf("templater tracer initialized")

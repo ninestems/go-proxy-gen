@@ -1,8 +1,16 @@
 package entity
 
+// Layer describe selected layer to generate proxy.
+type Layer struct {
+	logger  bool
+	tracer  bool
+	retrier bool
+}
+
 // Interface describes read interface.
 type Interface struct {
 	name      string
+	layer     Layer
 	functions []*Function
 }
 
@@ -40,4 +48,38 @@ func (i *Interface) Prepare() {
 		fn.Prepare()
 		fn.LinkParameters()
 	}
+}
+
+// SetLayer select active layer to generate code.
+func (i *Interface) SetLayer(in ProxyType) {
+	switch in {
+	case ProxyTypeLogger:
+		i.layer.logger = true
+		i.layer.tracer = false
+		i.layer.retrier = false
+	case ProxyTypeTracer:
+		i.layer.logger = false
+		i.layer.tracer = true
+		i.layer.retrier = false
+	case ProxyTypeRetrier:
+		i.layer.logger = false
+		i.layer.tracer = false
+		i.layer.retrier = true
+	default:
+	}
+}
+
+// IsLogger return true if logger layer was sets.
+func (i *Interface) IsLogger() bool {
+	return i.layer.logger
+}
+
+// IsTracer return true if tracer layer was sets.
+func (i *Interface) IsTracer() bool {
+	return i.layer.tracer
+}
+
+// IsRetrier return true if retrier layer was sets.
+func (i *Interface) IsRetrier() bool {
+	return i.layer.retrier
 }

@@ -1,0 +1,47 @@
+{{- define "tracer-imports"}}{{template "tracer-implementation-imports" .}}
+{{- end }}
+
+{{- define "tracer-interface"}}
+{{ template "tracer-implementation-helpers" . }}
+
+{{- $ifacename := .Name }}
+
+// {{ $ifacename }}ProxyTracer proxy wrapper for source.{{ $ifacename }}.
+type {{ $ifacename }}ProxyTracer struct {
+    src   source.{{ .Name }}
+    trace {{ template "tracer-implementation-type" . }}
+}
+
+// New{{ .Name }}ProxyTracer creates a new proxy trace for source.{{ $ifacename }}.
+func New{{ $ifacename }}ProxyTracer(
+    src source.{{ $ifacename }},
+    tp {{ template "tracer-implementation-input" . }},
+) *{{ $ifacename }}ProxyTracer {
+    return &{{ $ifacename }}ProxyTracer{
+        src:   src,
+        trace: {{ template "tracer-implementation-init" . }},
+    }
+}
+
+{{- range .Functions }}
+{{- $function := . }}
+
+// {{ $function.Name }} is proxy method for source.{{ $ifacename }}.{{ $function.Name }}.
+func (p *{{ $ifacename }}ProxyTracer) {{ $function.Name }}(
+{{- range $i, $p := $function.Input }}{{- /* printing function input param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Name}} {{ $p.Source }}
+{{- end }})
+{{- if eq (len $function.Output) 1 }} ({{ (index $function.Output 0).Name }} {{ (index $function.Output 0).Source }})
+{{- else if gt (len $function.Output) 1 }} (
+{{- range $i, $p := $function.Output }} {{- /* printing function output param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Name}} {{ $p.Source }}
+{{- end }})
+{{- else }}{{- /* needed if output params is empty */}}
+{{- end }} {
+{{- if $function.IsHaveTracerTag }}{{template "tracer-implementation-body" (dict "IfaceName" $ifacename "Function" $function)}}
+{{- else }} {{template "clear-body" $function}} {{- /* calling clear template */}}
+{{- end }}
+}
+{{- end }} {{- /* end cycle by functions */}}
+
+{{- end }}

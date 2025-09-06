@@ -7,7 +7,7 @@ import (
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
-//go:embed files/logger/zap.tmpl
+//go:embed files/logger/zap/zap.tmpl
 var loggerZapTemplate string
 
 // Logger describe ways to get string template of logger.
@@ -18,10 +18,11 @@ type Logger struct {
 // NewLogger builds new instance of Logger.
 func NewLogger(source string) *Logger {
 	if source == "" {
-		source = loggerZapTemplate
+		source = commonTemplate + loggerZapTemplate
 	}
 
 	log.Debugf("templater logger initialized")
+
 	return &Logger{source}
 }
 

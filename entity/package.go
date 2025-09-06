@@ -69,3 +69,34 @@ func (p *Package) Prepare() {
 		i.Prepare()
 	}
 }
+
+// SetLayer sets proxy type for each interface in package.
+func (p *Package) SetLayer(in ProxyType) {
+	for _, i := range p.interfaces {
+		i.SetLayer(in)
+	}
+}
+
+// IsLogger return true if on of interface has logger tags.
+func (p *Package) IsLogger() bool {
+	for _, i := range p.interfaces {
+		return i.IsLogger()
+	}
+	return false
+}
+
+// IsTracer return true if on of interface has tracer tags.
+func (p *Package) IsTracer() bool {
+	for _, i := range p.interfaces {
+		return i.IsTracer()
+	}
+	return false
+}
+
+// IsRetrier return true if on of interface has retrier tags.
+func (p *Package) IsRetrier() bool {
+	for _, i := range p.interfaces {
+		return i.IsRetrier()
+	}
+	return false
+}

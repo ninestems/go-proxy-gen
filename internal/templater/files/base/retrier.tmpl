@@ -1,0 +1,42 @@
+{{- define "retrier-imports"}} {{template "retrier-implementation-imports" .}}
+{{- end }}
+
+{{- define "retrier-interface"}}
+{{- $ifacename := .Name }}
+
+// {{ $ifacename }}ProxyRetrier proxy wrapper for source.{{ $ifacename }}.
+type {{ $ifacename }}ProxyRetrier struct {
+    src source.{{ .Name }}
+}
+
+// New{{ .Name }}ProxyRetrier creates a new proxy logger for source.{{ $ifacename }}.
+func New{{ $ifacename }}ProxyRetrier(
+    src source.{{ $ifacename }},
+) *{{ $ifacename }}ProxyRetrier {
+    return &{{ $ifacename }}ProxyRetrier{
+        src: src,
+    }
+}
+
+{{- range .Functions }}
+{{- $function := . }}
+
+// {{ $function.Name }} is proxy method for source.{{ $ifacename }}.{{ $function.Name }}.
+func (p *{{ $ifacename }}ProxyRetrier) {{ $function.Name }}(
+{{- range $i, $p := $function.Input }}{{- /* printing function input param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Name}} {{ $p.Source }}
+{{- end }})
+{{- if eq (len $function.Output) 1 }} ({{ (index $function.Output 0).Name }} {{ (index $function.Output 0).Source }})
+{{- else if gt (len $function.Output) 1 }} ({{- /* printing function output param in one line start */}}
+{{- range $i, $p := $function.Output }}
+    {{- if $i }}, {{ end }}{{ $p.Name}} {{ $p.Source }}
+{{- end }})
+{{- else }}{{- /* needed if output params is empty */}}
+{{- end }} {
+{{- if $function.IsHaveRetrierTag }} {{template "retrier-implementation-body" $function}}
+{{- else }} {{template "clear-body" $function}} {{- /* calling clear template */}}
+{{- end }}
+}
+{{- end }}
+
+{{- end }}

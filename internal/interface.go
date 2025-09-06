@@ -40,12 +40,8 @@ type DefinerI interface {
 // ProxierI defines interface for building in-memory proxy code
 // for a single interface.
 type ProxierI interface {
-	// DefineLogger generates Go source code for a proxy logger wrapper
-	// for a single interface and returns the code as bytes.
-	DefineLogger(in *entity.Package) ([]byte, error)
-	// DefineTracer generates Go source code for a proxy tracer wrapper
-	// for a single interface and returns the code as bytes.
-	DefineTracer(in *entity.Package) ([]byte, error)
+	// Build generates Go source code for all proxy layer.
+	Build(in *entity.Package) ([]*entity.Template, error)
 }
 
 // EmitterI defines interface for persisting generated code

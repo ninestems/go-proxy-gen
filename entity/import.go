@@ -33,3 +33,12 @@ func (im *Import) Source() string {
 func (im *Import) SetSource(source string) {
 	im.source = source
 }
+
+// Path builds import path for template.
+func (im *Import) Path() string {
+	if im.alias == "" {
+		return im.source
+	}
+
+	return im.alias + " " + im.source
+}

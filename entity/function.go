@@ -42,6 +42,21 @@ func (f *Function) Tags() *Tags {
 	return f.tags
 }
 
+// IsHaveLoggerTag returns true if function contains logger tag.
+func (f *Function) IsHaveLoggerTag() bool {
+	return f.tags.IsHaveTags(ProxyTypeLogger)
+}
+
+// IsHaveTracerTag returns true if function contains tracer tag.
+func (f *Function) IsHaveTracerTag() bool {
+	return f.tags.IsHaveTags(ProxyTypeTracer)
+}
+
+// IsHaveRetrierTag returns true if function contains retrier tag.
+func (f *Function) IsHaveRetrierTag() bool {
+	return f.tags.IsHaveTags(ProxyTypeRetrier)
+}
+
 // LogContextTags returns context tag for logger.
 func (f *Function) LogContextTags() []*ContextIO {
 	return f.tags.ContextLogger()

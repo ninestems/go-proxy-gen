@@ -1,44 +1,37 @@
 package proxier
 
 import (
-	"bytes"
-	"text/template"
-
 	"github.com/ninestems/go-proxy-gen/entity"
 )
 
-// DefineLogger generates Go source code for a proxy wrapper
-// for a single interface and returns the code as bytes.
-func (p *Proxier) DefineLogger(in *entity.Package) ([]byte, error) {
-	funcMap := template.FuncMap{
-		"sub": func(a, b int) int { return a - b },
-		"ge":  func(a, b int) bool { return a >= b },
-	}
+// Build generates Go source code for all proxy layer.
+func (p *Proxier) Build(in *entity.Package) ([]*entity.Template, error) {
+	var (
+		out  []*entity.Template
+		tmpl []byte
+		err  error
+	)
 
-	tmpl := template.Must(template.New("logger_proxy").Funcs(funcMap).Parse(p.lt.Template()))
-
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, in); err != nil {
+	tmpl, err = p.logger(in)
+	if err != nil {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
-}
+	out = append(out, entity.NewTemplate("logger", tmpl))
 
-// DefineTracer generates Go source code for a proxy tracer wrapper
-// for a single interface and returns the code as bytes.
-func (p *Proxier) DefineTracer(in *entity.Package) ([]byte, error) {
-	funcMap := template.FuncMap{
-		"sub": func(a, b int) int { return a - b },
-		"ge":  func(a, b int) bool { return a >= b },
-	}
-
-	tmpl := template.Must(template.New("tracer_proxy").Funcs(funcMap).Parse(p.tt.Template()))
-
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, in); err != nil {
+	tmpl, err = p.tracer(in)
+	if err != nil {
 		return nil, err
 	}
 
-	return buf.Bytes(), nil
+	out = append(out, entity.NewTemplate("tracer", tmpl))
+
+	tmpl, err = p.retrier(in)
+	if err != nil {
+		return nil, err
+	}
+
+	out = append(out, entity.NewTemplate("retrier", tmpl))
+
+	return out, nil
 }

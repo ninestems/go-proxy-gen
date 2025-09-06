@@ -1,0 +1,116 @@
+{{- define "logger-implementation-type"}}*zap.Logger
+{{- end }}
+
+{{- define "logger-implementation-input"}}*zap.Logger
+{{- end }}
+
+{{- define "logger-implementation-init"}}
+{{- $iface := . }}log.Named("{{ $iface.Name }}ProxyLogger")
+{{- end }}
+
+{{- define "logger-implementation-imports"}}
+    // logger template
+    source "{{ .Relative }}/{{ .Name }}"
+    zap "go.uber.org/zap"
+    "encoding/json"
+    "fmt"
+    "reflect"
+    {{- range .Imports }}
+        {{ .Path }}
+    {{- end }}
+{{- end }}
+
+{{- define "logger-implementation-helpers"}}
+func zfield(key string, value any) zap.Field {
+    switch v := value.(type) {
+    case string:
+        return zap.String(key, v)
+    case bool:
+        return zap.Bool(key, v)
+    case int:
+        return zap.Int(key, v)
+    case int64:
+        return zap.Int64(key, v)
+    case int32:
+        return zap.Int32(key, v)
+    case uint:
+        return zap.Uint(key, v)
+    case uint64:
+        return zap.Uint64(key, v)
+    case float64:
+        return zap.Float64(key, v)
+    case float32:
+        return zap.Float32(key, v)
+    case []string:
+        return zap.Strings(key, v)
+    case fmt.Stringer:
+        return zap.String(key, v.String())
+    case error:
+        return zap.Error(v)
+    case json.RawMessage:
+        return zap.ByteString(key, v)
+    default:
+        if b, err := json.Marshal(value); err == nil {
+        return zap.ByteString(key, b)
+        }
+        return zap.String(key, fmt.Sprintf("%v (%s)", value, reflect.TypeOf(value)))
+    }
+}
+{{- end }}
+
+{{- define "logger-implementation-field"}}
+{{- end }}
+
+{{- define "logger-implementation-body"}}
+    {{- $ifacename := .IfaceName }}
+    {{- $function := .Function }}
+    p.log.Info(
+        "{{ $function.Name }}() started",
+    {{- range $i, $tag := $function.LogContextTags }}
+        zap.Any("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
+    {{- end }}
+    {{- range $i, $tag := $function.LogInputTags }}
+        zfield("{{ $tag.Alias }}", {{ $tag.Call }}),
+    {{- end }}
+    )
+
+    {{ if ge (len $function.Output) 1 }}     {{- /* calling functions in proxy */}}
+        {{- range $i, $p := $function.Output }}
+            {{- if $i }}, {{ end }}{{ $p.Name }}
+        {{- end }} = p.src.{{ $function.Name }}(
+        {{- /* list of return more then zero and have no error or  list of return equal zero*/}}
+    {{- else }}p.src.{{ $function.Name }}(
+    {{- end }}
+
+    {{- range $i, $p := $function.Input }} {{- /* make input params */}}
+        {{- if $i }}, {{ end }}{{ $p.Name }}
+    {{- end }})
+
+
+    {{- if and (ge (len $function.Output) 1) (eq (index $function.Output (sub (len $function.Output) 1)).Source "error") }} {{- /* processed result of calling functions in proxy */}}
+    if {{ (index $function.Output (sub (len $function.Output) 1)).Name }} != nil {
+        p.log.Info(
+            "{{ $function.Name }}() ends with error",
+            zap.Error({{ (index $function.Output (sub (len $function.Output) 1)).Name }}),
+        )
+    } else {
+        p.log.Info(
+            "{{ $function.Name }}() ends with success",
+        {{- range $i, $tag := $function.LogOutputTags }}
+            zfield("{{ $tag.Alias}}", {{ $tag.Call }}),
+        {{- end }}
+        )
+    }
+    {{- else if (ge (len $function.Output) 1)}}
+    p.log.Info(
+    "{{ $function.Name }}() ends with success",
+    {{- range $i, $tag := $function.LogOutputTags }}
+        zfield("{{ $tag.Alias}}", {{ $tag.Call }}),
+    {{- end }}
+    )
+    {{- else }}
+    p.log.Info("{{ $function.Name }}() ends with success")
+    {{- end }}
+
+    return
+{{- end }}

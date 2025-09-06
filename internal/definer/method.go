@@ -9,55 +9,50 @@ import (
 // Define reads special markdown and makes proxy layers in `out` place.
 func (d *Definer) Define(in *entity.Package) error {
 	var (
-		lbytes, tbytes []byte
-		err            error
+		templates []*entity.Template
+		err       error
 	)
 	{
-		log.Info("generate bytes: start")
+		log.Info("generate templates: start")
 
-		lbytes, err = d.proxier.DefineLogger(in)
+		templates, err = d.proxier.Build(in)
 		if err != nil {
 			return err
 		}
 
-		tbytes, err = d.proxier.DefineTracer(in)
-		if err != nil {
-			return err
-		}
-
-		log.Info("generate bytes: success")
+		log.Info("generate templates: success")
 	}
+	{
+		log.Info("prepare folder: start")
 
-	log.Info("prepare folder: start")
-
-	if err = d.emitter.Prepare(); err != nil {
-		return err
-	}
-
-	func() {
-		if err == nil {
-			return
-		}
-		log.Info("remove folder if error found")
 		if err = d.emitter.Prepare(); err != nil {
-			log.Fatal(err)
+			return err
 		}
-	}()
 
-	log.Info("prepare folder: success")
+		log.Info("prepare folder: success")
 
+		func() {
+			if err == nil {
+				return
+			}
+			log.Info("remove folder if error found")
+			if err = d.emitter.Prepare(); err != nil {
+				log.Fatal(err)
+			}
+		}()
+	}
 	{
 		log.Infof("write files in folder '%v': start", d.opt.out)
 
-		if err = d.emitter.Write("logger", lbytes); err != nil {
-			return err
+		for _, template := range templates {
+			log.Infof("write wrapper with name '%v'", template.Name())
+
+			if err = d.emitter.Write(template.Name(), template.Data()); err != nil {
+				return err
+			}
 		}
 
-		if err = d.emitter.Write("tracer", tbytes); err != nil {
-			return err
-		}
-
-		log.Info("write file: success")
+		log.Info("write files: success")
 	}
 
 	return nil
