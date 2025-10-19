@@ -10,9 +10,7 @@ var _ internal.DefinerI = (*Definer)(nil)
 
 // Definer generates proxy layer files based on special markdown annotations.
 type Definer struct {
-	opt     *options
-	proxier internal.ProxierI
-	emitter internal.EmitterI
+	opt *options
 }
 
 // New builds new instance of Definer.
@@ -24,8 +22,6 @@ func New(opts ...Option) *Definer {
 
 	log.Debugf("definer initialized")
 	return &Definer{
-		opt:     &cfg,
-		proxier: cfg.proxier,
-		emitter: cfg.emitter,
+		opt: &cfg,
 	}
 }

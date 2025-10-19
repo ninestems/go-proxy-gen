@@ -2,7 +2,6 @@
 {{- end }}
 
 {{- define "logger-interface"}}
-{{ template "logger-implementation-helpers" . }}
 
 {{- $iface := . }}
 {{- $ifacename := .Name }}
@@ -13,8 +12,8 @@ type {{ $ifacename }}ProxyLogger struct {
     log {{ template "logger-implementation-type" . }}
 }
 
-// New{{ $iface.Name }}ProxyLogger creates a new proxy logger for source.{{ $ifacename }}.
-func New{{ $iface.Name }}ProxyLogger(
+// New{{ $ifacename }}ProxyLogger creates a new proxy logger for source.{{ $ifacename }}.
+func New{{ $ifacename }}ProxyLogger(
     src source.{{ $ifacename }},
     log {{ template "logger-implementation-input" . }},
 ) *{{ $ifacename }}ProxyLogger {
@@ -24,26 +23,33 @@ func New{{ $iface.Name }}ProxyLogger(
     }
 }
 
-
 {{- range .Functions }}
 {{- $function := . }}
 
-// {{ $function.Name }} is proxy method for source.{{ $ifacename }}.{{ $function.Name }}.
-func (p *{{ $ifacename }}ProxyLogger) {{ $function.Name }}(
-{{- range $i, $p := $function.Input }}{{- /* printing function input param in one line start */}}
-    {{- if $i }}, {{ end }}{{ $p.Name}} {{ $p.Source }}
-{{- end }})
-{{- if eq (len $function.Output) 1 }} ({{ (index $function.Output 0).Name }} {{ (index $function.Output 0).Source }})
-{{- else if gt (len $function.Output) 1 }} (
-{{- range $i, $p := $function.Output }} {{- /* printing function output param in one line start */}}
-    {{- if $i }}, {{ end }}{{ $p.Name}} {{ $p.Source }}
-{{- end }})
-{{- else }}{{- /* needed if output params is empty */}}
-{{- end }} {
-{{- if $function.IsHaveLoggerTag }}{{template "logger-implementation-body" (dict "IfaceName" $ifacename "Function" $function)}}
-{{- else }} {{template "clear-body" $function}} {{- /* calling clear template */}}
+{{- if $function.IsHaveLoggerTag }}{{template "logger-function" (dict "IfaceName" $ifacename "Function" $function)}}
+{{- else }} {{template "clear-function" (dict "IfaceName" $ifacename "Function" $function "Type" "Logger")}}
 {{- end }}
-}
+
 {{- end }} {{- /* end cycle by functions */}}
 
 {{- end }}
+
+
+{{- define "logger-function"}}
+{{- $function := .Function }}
+{{- $ifacename := .IfaceName }}
+// {{ $function.Name }} is proxy method for source.{{ $ifacename }}.{{ $function.Name }}.
+func (p *{{ $ifacename }}ProxyLogger) {{ $function.Name }}(
+{{- range $i, $p := $function.Input }}{{- /* printing function input param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Call }}
+{{- end }})
+{{- if eq (len $function.Output) 1 }} ({{ (index $function.Output 0).Call }})
+{{- else if gt (len $function.Output) 1 }} (
+{{- range $i, $p := $function.Output }} {{- /* printing function output param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Call }}
+{{- end }})
+{{- else }}{{- /* needed if output params is empty */}}
+{{- end }} {
+{{template "logger-implementation-body" (dict "IfaceName" $ifacename "Function" $function)}}
+}
+{{- end}}

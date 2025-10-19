@@ -1,16 +1,51 @@
 {{- define "clear-imports"}}
     // clear template
-    source "{{ .Relative }}/{{ .Name }}"
-    {{- /* printing imports: start */}}
-    {{- range .Imports }}
+    source "{{ .Path }}"
+    {{- range .Imports }}{{- /* printing imports */}}
     {{ .Path }}
     {{- end }}
-    {{- /* printing imports: end */}}
 {{- end }}
 
-{{- define "clear-body"}}
-    {{- $function :=  . }}
-    {{- /* calling functions in proxy start */}}
+{{- define "clear-interface"}}
+{{- $iface := .Iface }}
+{{- $ifacename := $iface.Name }}
+{{- $ifacetype := .Type }}
+// {{ $ifacename }}Proxy{{ $ifacetype }} proxy wrapper for source.{{ $ifacename }}.
+type {{ $ifacename }}Proxy{{ $ifacetype }} struct {
+    src source.{{ $ifacename }}
+}
+
+// New{{ $iface.Name }}Proxy{{ $ifacetype }} creates a new proxy {{ $ifacetype }} for source.{{ $ifacename }}.
+func New{{ $iface.Name }}Proxy{{ $ifacetype }}(
+    src source.{{ $ifacename }},
+) *{{ $ifacename }}Proxy{{ $ifacetype }} {
+    return &{{ $ifacename }}Proxy{{ $ifacetype }}{
+        src: src,
+    }
+}
+
+{{- range $iface.Functions }}
+{{- $function := . }} {{ template "clear-function" (dict "IfaceName" $ifacename "Function" $function "Type" $ifacetype) }}
+{{- end }}
+{{- end }}
+
+{{- define "clear-function"}}
+{{- $function := .Function }}
+{{- $ifacename := .IfaceName }}
+{{- $ifacetype := .Type }}
+
+// {{ $function.Name }} is proxy method for source.{{ $ifacename }}.{{ $function.Name }}.
+func (p *{{ $ifacename }}Proxy{{ $ifacetype }}) {{ $function.Name }}(
+{{- range $i, $p := $function.Input }}{{- /* printing function input param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Call }}
+{{- end }})
+{{- if eq (len $function.Output) 1 }} ({{ (index $function.Output 0).Name }} {{ (index $function.Output 0).Source }})
+{{- else if gt (len $function.Output) 1 }} (
+{{- range $i, $p := $function.Output }} {{- /* printing function output param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Call }}
+{{- end }})
+{{- else }}{{- /* needed if output params is empty */}}
+{{- end }} {
     {{- /* list of return has more then zero number of parameters */}}
     {{ if ge (len $function.Output) 1 }}
         {{- range $i, $p := $function.Output }}
@@ -27,4 +62,5 @@
     {{- end }})
     {{- /* end make input params */}}
     return
+}
 {{- end }}

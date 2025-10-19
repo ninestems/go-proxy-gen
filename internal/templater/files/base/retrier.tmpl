@@ -2,6 +2,8 @@
 {{- end }}
 
 {{- define "retrier-interface"}}
+
+{{- $iface := . }}
 {{- $ifacename := .Name }}
 
 // {{ $ifacename }}ProxyRetrier proxy wrapper for source.{{ $ifacename }}.
@@ -9,7 +11,7 @@ type {{ $ifacename }}ProxyRetrier struct {
     src source.{{ .Name }}
 }
 
-// New{{ .Name }}ProxyRetrier creates a new proxy logger for source.{{ $ifacename }}.
+// New{{ $ifacename }}ProxyRetrier creates a new proxy retrier for source.{{ $ifacename }}.
 func New{{ $ifacename }}ProxyRetrier(
     src source.{{ $ifacename }},
 ) *{{ $ifacename }}ProxyRetrier {
@@ -21,22 +23,30 @@ func New{{ $ifacename }}ProxyRetrier(
 {{- range .Functions }}
 {{- $function := . }}
 
+{{- if $function.IsHaveRetrierTag }}{{template "retrier-function" (dict "IfaceName" $ifacename "Function" $function)}}
+{{- else }} {{template "clear-function" (dict "IfaceName" $ifacename "Function" $function "Type" "Retrier")}}
+{{- end }}
+
+{{- end }} {{- /* end cycle by functions */}}
+
+{{- end }}
+
+
+{{- define "retrier-function"}}
+{{- $function := .Function }}
+{{- $ifacename := .IfaceName }}
 // {{ $function.Name }} is proxy method for source.{{ $ifacename }}.{{ $function.Name }}.
 func (p *{{ $ifacename }}ProxyRetrier) {{ $function.Name }}(
 {{- range $i, $p := $function.Input }}{{- /* printing function input param in one line start */}}
-    {{- if $i }}, {{ end }}{{ $p.Name}} {{ $p.Source }}
+    {{- if $i }}, {{ end }}{{ $p.Call }}
 {{- end }})
-{{- if eq (len $function.Output) 1 }} ({{ (index $function.Output 0).Name }} {{ (index $function.Output 0).Source }})
-{{- else if gt (len $function.Output) 1 }} ({{- /* printing function output param in one line start */}}
-{{- range $i, $p := $function.Output }}
-    {{- if $i }}, {{ end }}{{ $p.Name}} {{ $p.Source }}
+{{- if eq (len $function.Output) 1 }} ({{ (index $function.Output 0).Call }})
+{{- else if gt (len $function.Output) 1 }} (
+{{- range $i, $p := $function.Output }} {{- /* printing function output param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Call }}
 {{- end }})
 {{- else }}{{- /* needed if output params is empty */}}
 {{- end }} {
-{{- if $function.IsHaveRetrierTag }} {{template "retrier-implementation-body" $function}}
-{{- else }} {{template "clear-body" $function}} {{- /* calling clear template */}}
-{{- end }}
+{{template "retrier-implementation-body" (dict "IfaceName" $ifacename "Function" $function)}}
 }
-{{- end }}
-
 {{- end }}

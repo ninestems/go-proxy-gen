@@ -10,7 +10,7 @@
 
 {{- define "tracer-implementation-imports"}}
     // tracer template
-    source "{{ .Relative }}/{{ .Name }}"
+    source "{{ .Path }}"
     trace "go.opentelemetry.io/otel/trace"
     traceprovider "go.opentelemetry.io/otel/sdk/trace"
     "fmt"
@@ -46,14 +46,8 @@ func attr(key string, value any) attribute.KeyValue {
 }
 {{- end }}
 
-{{- define "tracer-implementation-field"}}
-{{- end }}
-
 {{- define "tracer-implementation-body"}}
-    {{- $ifacename := .IfaceName }}
-    {{- $function := .Function }}
-
-    {{ (index $function.Input 0).Name }}, span := p.trace.Start({{ (index $function.Input 0).Name }}, "{{ $ifacename }}ProxyTracer.{{ $function.Name }}() started")
+{{- $ifacename := .IfaceName }}{{- $function := .Function }}{{ (index $function.Input 0).Name }}, span := p.trace.Start({{ (index $function.Input 0).Name }}, "{{ $function.Name }}() started")
     defer span.End()
     {{- if or (len $function.TraceContextTags) (len $function.TraceInputTags) }}
     span.SetAttributes(
@@ -78,7 +72,7 @@ func attr(key string, value any) attribute.KeyValue {
         {{- if $i }}, {{ end }}{{ $p.Name }}
     {{- end }})
 
-    {{- if and (ge (len $function.Output) 1) (eq (index $function.Output (sub (len $function.Output) 1)).Source "error") }}{{- /* processed result of calling functions in proxy */}}
+    {{- if and (ge (len $function.Output) 1) (eq (index $function.Output (sub (len $function.Output) 1)).Path "error") }}{{- /* processed result of calling functions in proxy */}}
     if {{ (index $function.Output (sub (len $function.Output) 1)).Name }} != nil {
         span.RecordError({{ (index $function.Output (sub (len $function.Output) 1)).Name }})
         span.SetStatus(codes.Error, {{ (index $function.Output (sub (len $function.Output) 1)).Name }}.Error())
@@ -90,7 +84,7 @@ func attr(key string, value any) attribute.KeyValue {
         {{- end }}
         )
     {{- end }}
-        span.SetStatus(codes.Ok, "{{ $ifacename }}ProxyTracer.{{ $function.Name }}() success")
+        span.SetStatus(codes.Ok, "{{ $function.Name }}() ends with success")
     }
     {{- else if (ge (len $function.Output) 1)}}
         {{- if (len $function.TraceOutputTags) }}
@@ -100,9 +94,9 @@ func attr(key string, value any) attribute.KeyValue {
             {{- end }}
             )
         {{- end }}
-        span.SetStatus(codes.Ok, "{{ $ifacename }}ProxyTracer.{{ $function.Name }}() success")
+        span.SetStatus(codes.Ok, "{{ $function.Name }}() ends with success")
     {{- else }}
-        span.SetStatus(codes.Ok, "{{ $ifacename }}ProxyTracer.{{ $function.Name }}() success")
+        span.SetStatus(codes.Ok, "{{ $function.Name }}() ends with success")
     {{- end }}
 
     return

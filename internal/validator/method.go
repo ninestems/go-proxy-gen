@@ -8,12 +8,8 @@ import (
 
 // Validate checks a list of interfaces for tag format, structural issues,
 // and semantic correctness before code generation.
-func (e *Validator) Validate(in *entity.Package) error {
-	if err := validatePackage(in); err != nil {
-		return err
-	}
-
-	for _, iface := range in.Interfaces() {
+func (e *Validator) Validate(in []*entity.Interface) error {
+	for _, iface := range in {
 		if err := validateInterface(iface); err != nil {
 			return err
 		}
@@ -28,6 +24,5 @@ func (e *Validator) Validate(in *entity.Package) error {
 			}
 		}
 	}
-
 	return nil
 }

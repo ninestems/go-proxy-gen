@@ -19,7 +19,7 @@ type Tracer struct {
 // NewTracer builds new instance of Tracer
 func NewTracer(source string) *Tracer {
 	if source == "" {
-		source = commonTemplate + tracerOpenTelemetryTemplate
+		source = baseTracer + tracerTemplate + clearTemplate + tracerOpenTelemetryTemplate
 	}
 
 	log.Debugf("templater tracer initialized")

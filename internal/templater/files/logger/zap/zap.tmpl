@@ -9,14 +9,13 @@
 {{- end }}
 
 {{- define "logger-implementation-imports"}}
-    // logger template
-    source "{{ .Relative }}/{{ .Name }}"
+    source "{{ .Path }}"
     zap "go.uber.org/zap"
     "encoding/json"
     "fmt"
     "reflect"
     {{- range .Imports }}
-        {{ .Path }}
+    {{ .Path }}
     {{- end }}
 {{- end }}
 
@@ -58,13 +57,8 @@ func zfield(key string, value any) zap.Field {
 }
 {{- end }}
 
-{{- define "logger-implementation-field"}}
-{{- end }}
-
 {{- define "logger-implementation-body"}}
-    {{- $ifacename := .IfaceName }}
-    {{- $function := .Function }}
-    p.log.Info(
+{{- $ifacename := .IfaceName }} {{- $function := .Function }}   p.log.Info(
         "{{ $function.Name }}() started",
     {{- range $i, $tag := $function.LogContextTags }}
         zap.Any("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
@@ -74,12 +68,11 @@ func zfield(key string, value any) zap.Field {
     {{- end }}
     )
 
-    {{ if ge (len $function.Output) 1 }}     {{- /* calling functions in proxy */}}
+    {{ if ge (len $function.Output) 1 }}{{- /* calling functions in proxy */}}
         {{- range $i, $p := $function.Output }}
             {{- if $i }}, {{ end }}{{ $p.Name }}
         {{- end }} = p.src.{{ $function.Name }}(
-        {{- /* list of return more then zero and have no error or  list of return equal zero*/}}
-    {{- else }}p.src.{{ $function.Name }}(
+    {{- else }}p.src.{{ $function.Name }}({{- /* list of return more then zero and have no error or list of return equal zero*/}}
     {{- end }}
 
     {{- range $i, $p := $function.Input }} {{- /* make input params */}}
@@ -87,7 +80,7 @@ func zfield(key string, value any) zap.Field {
     {{- end }})
 
 
-    {{- if and (ge (len $function.Output) 1) (eq (index $function.Output (sub (len $function.Output) 1)).Source "error") }} {{- /* processed result of calling functions in proxy */}}
+    {{- if and (ge (len $function.Output) 1) (eq (index $function.Output (sub (len $function.Output) 1)).Path "error") }} {{- /* processed result of calling functions in proxy */}}
     if {{ (index $function.Output (sub (len $function.Output) 1)).Name }} != nil {
         p.log.Info(
             "{{ $function.Name }}() ends with error",

@@ -34,7 +34,7 @@ func (im *Import) SetSource(source string) {
 	im.source = source
 }
 
-// Path builds import path for template.
+// Path builds import relative for template.
 func (im *Import) Path() string {
 	if im.alias == "" {
 		return im.source

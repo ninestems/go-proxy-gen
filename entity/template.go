@@ -2,16 +2,23 @@ package entity
 
 // Template describe compile bytes and their name.
 type Template struct {
-	name string
-	data []byte
+	relative string
+	name     string
+	data     []byte
 }
 
 // NewTemplate create new Template.
-func NewTemplate(name string, data []byte) *Template {
+func NewTemplate(relative, name string, data []byte) *Template {
 	return &Template{
-		name: name,
-		data: data,
+		relative: relative,
+		name:     name,
+		data:     data,
 	}
+}
+
+// Path return name of template.
+func (t *Template) Path() string {
+	return t.relative + "/proxy/" + t.name
 }
 
 // Name return name of template.

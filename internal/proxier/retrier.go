@@ -9,7 +9,7 @@ import (
 
 // retrier generates Go source code for a proxy tracer wrapper
 // for a single interface and returns the code as bytes.
-func (p *Proxier) retrier(in *entity.Package) ([]byte, error) {
+func (p *Proxier) retrier(in *entity.Interface) ([]byte, error) {
 	funcMap := template.FuncMap{
 		"sub":  func(a, b int) int { return a - b },
 		"ge":   func(a, b int) bool { return a >= b },
@@ -18,9 +18,9 @@ func (p *Proxier) retrier(in *entity.Package) ([]byte, error) {
 		"list": func(vals ...interface{}) []interface{} { return vals },
 	}
 
-	in.SetLayer(entity.ProxyTypeRetrier)
-
-	tmpl := template.Must(template.New("retrier_proxy").Funcs(funcMap).Parse(p.rt.Template()))
+	tmpl := template.Must(
+		template.New("retrier_proxy_" + in.Name()).Funcs(funcMap).Parse(p.opts.rt.Template()),
+	)
 
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, in); err != nil {

@@ -94,14 +94,17 @@ func Build(
 
 	log.Debugf("input path: %v", in)
 	log.Debugf("output path: %v", out)
+	log.Debugf("relative path: %v", getRelative(in))
 	log.Debugf("interfaces list: %v", ifaces)
 	log.Debugf("proxy layers types: %v", types)
 
 	pars := parser.New(
 		parser.WithInPath(in),
-		parser.WithRelativePath(getRelative(in)),
-		parser.WithIfaces(ifaces),
-		parser.WithScanner(scanner.New()),
+		parser.WithScanner(
+			scanner.New(
+				scanner.WithRelativePath(getRelative(in)),
+				scanner.WithIfaces(ifaces),
+			)),
 		parser.WithValidator(validator.New()),
 	)
 
@@ -109,6 +112,9 @@ func Build(
 		proxier.WithLoggerTemplater(templater.NewLogger("")),
 		proxier.WithTracerTemplater(templater.NewTracer("")),
 		proxier.WithRetrierTemplater(templater.NewRetrier("")),
+		proxier.WithEnableLoggerTemplater(true),
+		proxier.WithEnableTracerTemplater(true),
+		proxier.WithEnableRetrierTemplater(true),
 	)
 
 	emtr := emitter.New(

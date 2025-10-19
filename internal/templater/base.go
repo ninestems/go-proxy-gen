@@ -5,16 +5,18 @@ import (
 )
 
 var (
-	//go:embed files/base/base.tmpl
-	baseTemplate string
+	//go:embed files/base/base_logger.tmpl
+	baseLogger string
+	//go:embed files/base/base_tracer.tmpl
+	baseTracer string
+	//go:embed files/base/base_retrier.tmpl
+	baseRetrier string
+	//go:embed files/base/logger.tmpl
+	loggerTemplate string
+	//go:embed files/base/tracer.tmpl
+	tracerTemplate string
+	//go:embed files/base/retrier.tmpl
+	retrierTemplate string
 	//go:embed files/base/clear.tmpl
 	clearTemplate string
-	//go:embed files/base/logger.tmpl
-	loggerBaseTemplate string
-	//go:embed files/base/tracer.tmpl
-	tracerBaseTemplate string
-	//go:embed files/base/retrier.tmpl
-	retrierBaseTemplate string
-	// commonTemplate contains all base templates,
-	commonTemplate = baseTemplate + clearTemplate + loggerBaseTemplate + tracerBaseTemplate + retrierBaseTemplate
 )

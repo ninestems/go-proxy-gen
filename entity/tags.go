@@ -1,5 +1,9 @@
 package entity
 
+import (
+	"fmt"
+)
+
 // OwnershipInput описывает входной объект
 type ownershipper interface {
 	IsForLogger() bool
@@ -20,7 +24,7 @@ type Tags struct {
 	context []*ContextIO
 	input   []*InputIO
 	output  []*OutputIO
-	retry   []*Retry
+	retry   *Retry
 }
 
 // setOwnership set mark to true, if tag is correct type.
@@ -60,11 +64,9 @@ func (t *Tags) AddOutput(out ...*OutputIO) {
 }
 
 // AddRetry added retry tag to inner list.
-func (t *Tags) AddRetry(in ...*Retry) {
-	for _, ow := range in {
-		t.setOwnership(ow)
-	}
-	t.retry = append(t.retry, in...)
+func (t *Tags) AddRetry(in *Retry) {
+	t.setOwnership(in)
+	t.retry = in
 }
 
 // Context returns list of context tag/
@@ -155,7 +157,7 @@ func (t *Tags) OutputTracer() []*OutputIO {
 }
 
 // Retry returns list of retry tags.
-func (t *Tags) Retry() []*Retry {
+func (t *Tags) Retry() *Retry {
 	return t.retry
 }
 
@@ -165,8 +167,10 @@ func (t *Tags) IsHaveTags(in ProxyType) bool {
 	case ProxyTypeLogger:
 		return t.logger
 	case ProxyTypeTracer:
+		fmt.Println("IsHaveTags ProxyTypeTracer", t.tracer)
 		return t.tracer
 	case ProxyTypeRetrier:
+		fmt.Println("IsHaveTags ProxyTypeRetrier", t.retrier)
 		return t.retrier
 	default:
 		return false

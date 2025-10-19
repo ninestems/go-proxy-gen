@@ -7,10 +7,8 @@ import (
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
-var (
-	//go:embed files/retrier/backoff/backoff.tmpl
-	retrierBackoffTemplate string
-)
+//go:embed files/retrier/backoff/backoff.tmpl
+var retrierBackoffTemplate string
 
 // Retrier describe ways to get string template of retrier.
 type Retrier struct {
@@ -20,7 +18,7 @@ type Retrier struct {
 // NewRetrier builds new instance of Retrier.
 func NewRetrier(source string) *Retrier {
 	if source == "" {
-		source = commonTemplate + retrierBackoffTemplate
+		source = baseRetrier + retrierTemplate + clearTemplate + retrierBackoffTemplate
 	}
 
 	log.Debugf("templater retrier initialized")

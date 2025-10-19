@@ -6,7 +6,7 @@ import (
 
 // IO represents tag for input/output action, including context.
 type IO struct {
-	*Common
+	*CommonTag
 	alias     string
 	name      string
 	source    string
@@ -23,13 +23,15 @@ func NewTagIO(
 	ttype TagType,
 	ptype ProxyType,
 ) *IO {
-	return &IO{
-		alias:  alias,
-		name:   name,
-		source: source,
-		key:    accessor,
-		Common: NewCommon(ttype, ptype, define(source)),
+	out := IO{
+		alias:     alias,
+		name:      name,
+		source:    source,
+		key:       accessor,
+		CommonTag: NewCommonTag(ttype, ptype, define(source)),
 	}
+
+	return &out
 }
 
 // Alias returns alias.
@@ -78,12 +80,14 @@ func (t *IO) IsName(in string) bool {
 
 // IsSource compare source with in.
 func (t *IO) IsSource(in string) bool {
-	return t.source == strings.TrimLeft(in, "*")
+	in, _ = strings.CutPrefix(in, "*")
+	in, _ = strings.CutPrefix(in, "source.")
+	return t.source == in
 }
 
 // IsParentParameter check that parameter is parent for tag.
 func (t *IO) IsParentParameter(p *Parameter) bool {
-	isSource := t.IsSource(p.Source())               // source from parameter equals source from tag.
+	isSource := t.IsSource(p.Path())                 // source from parameter equals source from tag.
 	isNameEmpty := t.IsEmptyName()                   // name from tag is empty.
 	isName := !t.IsEmptyName() && t.IsName(p.Name()) // name is not empty and equals name from tag.
 	return isSource && (isNameEmpty || isName)

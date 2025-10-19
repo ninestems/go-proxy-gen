@@ -3,6 +3,7 @@ module github.com/ninestems/go-proxy-gen
 go 1.24
 
 require (
+	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/stretchr/testify v1.11.1
 	go.opentelemetry.io/otel v1.38.0
 	go.opentelemetry.io/otel/sdk v1.38.0

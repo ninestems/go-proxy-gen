@@ -6,8 +6,6 @@ import (
 
 type options struct {
 	in        string
-	relative  string
-	ifaces    []string
 	scanner   internal.ScannerI
 	validator internal.ValidatorI
 }
@@ -19,20 +17,6 @@ type Option func(*options)
 func WithInPath(in string) Option {
 	return func(o *options) {
 		o.in = in
-	}
-}
-
-// WithRelativePath added relative path where with go mod name..
-func WithRelativePath(in string) Option {
-	return func(o *options) {
-		o.relative = in
-	}
-}
-
-// WithIfaces added list name of interfaces for proxy generate in options.
-func WithIfaces(in []string) Option {
-	return func(o *options) {
-		o.ifaces = in
 	}
 }
 

@@ -74,3 +74,16 @@ var (
 	// ErrEmptyOutputTagParameter is returned when the output tag parameter is not set.
 	ErrEmptyOutputTagParameter = errors.New("empty output tag parameter")
 )
+
+var (
+	// ErrInvalidStartTimeTagRetryProxyType occurs when start time duration is invalid or unparsable.
+	ErrInvalidStartTimeTagRetryProxyType = errors.New("invalid start time tag retry proxy type")
+	// ErrInvalidEndTimeTagRetryProxyType  occurs when end time duration is invalid or unparsable.
+	ErrInvalidEndTimeTagRetryProxyType = errors.New("invalid end time tag retry proxy type")
+	// ErrInvalidEndTimeLessThenStartTagRetryProxy occurs when end time is less than or equal to start time.
+	ErrInvalidEndTimeLessThenStartTagRetryProxy = errors.New("start time must be less than end time tag retry proxy type")
+	// ErrInvalidMultiplierValueTagRetryProxyType occurs when multiplier value is less than or equal to 1.0.
+	ErrInvalidMultiplierValueTagRetryProxyType = errors.New("invalid multiplier value tag retry proxy type")
+	// ErrInvalidAttemptsValueTagRetryProxyType occurs when attempts value is zero or negative.
+	ErrInvalidAttemptsValueTagRetryProxyType = errors.New("invalid attempts value tag retry proxy type")
+)

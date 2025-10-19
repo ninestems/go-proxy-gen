@@ -36,7 +36,7 @@ func validateFunction(in *entity.Function) error {
 
 	hasContext := false
 	for _, parameter := range in.Input() {
-		if parameter.Source() == "context.Context" {
+		if parameter.Path() == "context.Context" {
 			hasContext = true
 		}
 	}
@@ -62,7 +62,7 @@ func validateTags(in *entity.Tags) error {
 		return err
 	}
 
-	if err := validateRetryTags(in.Retry()...); err != nil {
+	if err := validateRetryTags(in.Retry()); err != nil {
 		return err
 	}
 
@@ -215,16 +215,30 @@ func validateOutputIOTag(in *entity.OutputIO) error {
 	return nil
 }
 
-func validateRetryTags(in ...*entity.Retry) error {
-	for _, tag := range in {
-		if err := validateRetryTag(tag); err != nil {
-			return err
-		}
+func validateRetryTags(in *entity.Retry) error {
+	return validateRetryTag(in)
+}
+
+func validateRetryTag(in *entity.Retry) error {
+	if in.Start() <= 0 {
+		return entity.ErrInvalidStartTimeTagRetryProxyType
+	}
+
+	if in.End() <= 0 {
+		return entity.ErrInvalidEndTimeTagRetryProxyType
+	}
+
+	if in.End() <= in.Start() {
+		return entity.ErrInvalidEndTimeLessThenStartTagRetryProxy
+	}
+
+	if in.Multiplier() <= 1 {
+		return entity.ErrInvalidMultiplierValueTagRetryProxyType
+	}
+
+	if in.Attempts() <= 0 {
+		return entity.ErrInvalidAttemptsValueTagRetryProxyType
 	}
 
 	return nil
-}
-
-func validateRetryTag(_ *entity.Retry) error {
-	panic("implement me")
 }

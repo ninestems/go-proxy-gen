@@ -18,7 +18,7 @@ type Logger struct {
 // NewLogger builds new instance of Logger.
 func NewLogger(source string) *Logger {
 	if source == "" {
-		source = commonTemplate + loggerZapTemplate
+		source = baseLogger + loggerTemplate + clearTemplate + loggerZapTemplate
 	}
 
 	log.Debugf("templater logger initialized")

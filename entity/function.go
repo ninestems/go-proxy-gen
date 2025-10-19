@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -54,6 +55,7 @@ func (f *Function) IsHaveTracerTag() bool {
 
 // IsHaveRetrierTag returns true if function contains retrier tag.
 func (f *Function) IsHaveRetrierTag() bool {
+	fmt.Printf("%s is retrier function\n", f.name)
 	return f.tags.IsHaveTags(ProxyTypeRetrier)
 }
 
@@ -87,8 +89,8 @@ func (f *Function) TraceOutputTags() []*OutputIO {
 	return f.tags.OutputTracer()
 }
 
-// RetryTags returns all retry tags.
-func (f *Function) RetryTags() []*Retry {
+// RetryTag returns all retry tags.
+func (f *Function) RetryTag() *Retry {
 	return f.tags.Retry()
 }
 
@@ -101,10 +103,15 @@ func (f *Function) Prepare() {
 	for idx := range f.output {
 		f.output[idx].Prepare(strconv.Itoa(idx))
 	}
+
+	f.LinkParameters()
 }
 
 // LinkParameters links input/output parameters with tags.
 func (f *Function) LinkParameters() {
+	if f.Tags() == nil {
+		return // think about panic or error here
+	}
 	for _, p := range f.input {
 		for _, tag := range f.Tags().Context() {
 			tag.ApplyParameter(p)

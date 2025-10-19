@@ -1,7 +1,7 @@
 package emitter
 
 type options struct {
-	path string
+	path string // out path for saving files.
 }
 
 // Option describe function for applying config.

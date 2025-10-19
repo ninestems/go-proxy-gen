@@ -36,11 +36,11 @@ func TestNewFunction(t *testing.T) {
 			args: args{
 				name: "fn",
 				input: []*Parameter{
-					NewInputParameter("ctx", "context.Context"),
-					NewInputParameter("id", "int"),
+					NewInputParameter([]string{"ctx"}, "context.Context", false),
+					NewInputParameter([]string{"id"}, "int", false),
 				},
 				output: []*Parameter{
-					NewInputParameter("out0", "error"),
+					NewInputParameter([]string{"out0"}, "error", false),
 				},
 				ctxTag: []*ContextIO{
 					NewIOContextTag("log_traceID", "context.Context", "trace_id", ProxyTypeLogger),
@@ -86,20 +86,20 @@ func TestFunction_Prepare(t *testing.T) {
 			name: "correct fill parameter names",
 			fields: fields{
 				input: []*Parameter{
-					NewInputParameter("", "context.Context"),
-					NewInputParameter("", "int"),
+					NewInputParameter([]string{}, "context.Context", false),
+					NewInputParameter([]string{}, "int", false),
 				},
 				output: []*Parameter{
-					NewOutputParameter("", "error"),
+					NewOutputParameter([]string{}, "error", false),
 				},
 			},
 			want: fields{
 				input: []*Parameter{
-					NewInputParameter("in0", "context.Context"),
-					NewInputParameter("in1", "int"),
+					NewInputParameter([]string{"in0"}, "context.Context", false),
+					NewInputParameter([]string{"in1"}, "int", false),
 				},
 				output: []*Parameter{
-					NewOutputParameter("out0", "error"),
+					NewOutputParameter([]string{"out0"}, "error", false),
 				},
 			},
 		},
@@ -107,20 +107,20 @@ func TestFunction_Prepare(t *testing.T) {
 			name: "part fill parameter names",
 			fields: fields{
 				input: []*Parameter{
-					NewInputParameter("ctx", "context.Context"),
-					NewInputParameter("id", "int"),
+					NewInputParameter([]string{"ctx"}, "context.Context", false),
+					NewInputParameter([]string{"id"}, "int", false),
 				},
 				output: []*Parameter{
-					NewOutputParameter("", "error"),
+					NewOutputParameter([]string{}, "error", false),
 				},
 			},
 			want: fields{
 				input: []*Parameter{
-					NewInputParameter("ctx", "context.Context"),
-					NewInputParameter("id", "int"),
+					NewInputParameter([]string{"ctx"}, "context.Context", false),
+					NewInputParameter([]string{"id"}, "int", false),
 				},
 				output: []*Parameter{
-					NewOutputParameter("out0", "error"),
+					NewOutputParameter([]string{"out0"}, "error", false),
 				},
 			},
 		},
@@ -128,20 +128,20 @@ func TestFunction_Prepare(t *testing.T) {
 			name: "no change parameter names",
 			fields: fields{
 				input: []*Parameter{
-					NewInputParameter("ctx", "context.Context"),
-					NewInputParameter("id", "int"),
+					NewInputParameter([]string{"ctx"}, "context.Context", false),
+					NewInputParameter([]string{"id"}, "int", false),
 				},
 				output: []*Parameter{
-					NewOutputParameter("err", "error"),
+					NewOutputParameter([]string{"err"}, "error", false),
 				},
 			},
 			want: fields{
 				input: []*Parameter{
-					NewInputParameter("ctx", "context.Context"),
-					NewInputParameter("id", "int"),
+					NewInputParameter([]string{"ctx"}, "context.Context", false),
+					NewInputParameter([]string{"id"}, "int", false),
 				},
 				output: []*Parameter{
-					NewOutputParameter("err", "error"),
+					NewOutputParameter([]string{"err"}, "error", false),
 				},
 			},
 		},
@@ -173,11 +173,11 @@ func TestFunction_LinkParameters(t *testing.T) {
 			name: "correct link parameters",
 			fields: fields{
 				input: []*Parameter{
-					NewInputParameter("ctx", "context.Context"),
-					NewInputParameter("id", "int"),
+					NewInputParameter([]string{"ctx"}, "context.Context", false),
+					NewInputParameter([]string{"id"}, "int", false),
 				},
 				output: []*Parameter{
-					NewOutputParameter("", "error"),
+					NewOutputParameter([]string{}, "error", false),
 				},
 				tags: &Tags{
 					context: []*ContextIO{
@@ -200,7 +200,7 @@ func TestFunction_LinkParameters(t *testing.T) {
 				output: tt.fields.output,
 				tags:   tt.fields.tags,
 			}
-			f.LinkParameters()
+			f.Prepare()
 			for _, tag := range f.LogContextTags() {
 				require.True(t, !tag.IsEmptyParameter())
 			}
