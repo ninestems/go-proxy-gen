@@ -40,6 +40,8 @@ func define(in string) ValueType {
 		return ValueTypeByte
 	case "rune":
 		return ValueTypeRune
+	case "error":
+		return ValueTypeError
 	default:
 		return ValueTypeStruct
 	}

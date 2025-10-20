@@ -7,12 +7,12 @@ import (
 // Generate read source and build proxy layers.
 func (g *Generator) Generate() error {
 	log.Infof("generate: start")
-	pack, err := g.parser.Parse()
+	ifas, err := g.parser.Parse()
 	if err != nil {
 		return err
 	}
 
-	if err = g.definer.Define(pack); err != nil {
+	if err = g.definer.Define(ifas); err != nil {
 		return err
 	}
 

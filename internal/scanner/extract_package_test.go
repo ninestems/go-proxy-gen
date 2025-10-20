@@ -6,24 +6,23 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/ninestems/go-proxy-gen/entity"
 )
 
-func Test_packag(t *testing.T) {
+func Test_extractPackage(t *testing.T) {
 	type args struct {
-		node  *ast.File
-		names []string
+		in       *ast.File
+		relative string
+		names    []string
 	}
 	tests := []struct {
 		name string
 		args args
-		want *entity.Package
+		want *packageSpecification
 	}{
 		{
-			name: "convert file to package",
+			name: "convert ast file to package",
 			args: args{
-				node: &ast.File{
+				in: &ast.File{
 					Name: ast.NewIdent("sample"),
 					Decls: []ast.Decl{
 						&ast.GenDecl{
@@ -83,36 +82,53 @@ func Test_packag(t *testing.T) {
 						},
 					},
 				},
-				names: nil,
+				relative: "relative",
 			},
-			want: entity.NewPackage(
-				"sample",
-				"",
-				[]*entity.Import{entity.NewImport("add", "some/path")},
-				[]*entity.Interface{
-					entity.NewInterface(
-						"Calculator",
-						[]*entity.Function{
-							entity.NewFunction(
-								"Add",
-								[]*entity.Parameter{
-									entity.NewInputParameter("a", "int"),
-									entity.NewInputParameter("b", "int"),
-								},
-								[]*entity.Parameter{
-									entity.NewOutputParameter("", "int"),
-								},
-								&entity.Tags{},
-							),
-						},
-					),
+			want: &packageSpecification{
+				name:     "sample",
+				relative: "relative",
+				imports: []*importSpecification{
+					{
+						alias: "add",
+						path:  "some/path",
+					},
 				},
-			),
+				ifasec: []*interfaceSpecification{
+					{
+						name: "Calculator",
+						functions: []*functionSpecification{
+							{
+								name: "Add",
+								input: []*parameterSpecification{
+									{
+										names:   []string{"a"},
+										source:  "int",
+										pointer: false,
+									},
+									{
+										names:   []string{"b"},
+										source:  "int",
+										pointer: false,
+									},
+								},
+								output: []*parameterSpecification{
+									{
+										names:   []string{},
+										source:  "int",
+										pointer: false,
+									},
+								},
+								tags: &tagSpecification{},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require.Equal(t, tt.want, packag(tt.args.node, tt.args.names...))
+			require.Equal(t, tt.want, extractPackage(tt.args.in, tt.args.relative, tt.args.names...))
 		})
 	}
 }

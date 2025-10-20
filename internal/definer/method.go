@@ -1,63 +1,37 @@
 package definer
 
 import (
-	"github.com/ninestems/go-proxy-gen/pkg/log"
-
 	"github.com/ninestems/go-proxy-gen/entity"
 )
 
-// Define reads special markdown and makes proxy layers in `out` place.
-func (d *Definer) Define(in *entity.Package) error {
+// Define receives a list of interfaces and output path,
+// then generates proxy wrappers and writes them to disk.
+func (d *Definer) Define(in []*entity.Interface) error {
 	var (
-		lbytes, tbytes []byte
-		err            error
+		tmplts  []*entity.Template
+		ltmplts []*entity.Template
+		err     error
 	)
-	{
-		log.Info("generate bytes: start")
 
-		lbytes, err = d.proxier.DefineLogger(in)
+	for _, iface := range in {
+		ltmplts, err = d.opt.proxier.Build(iface)
 		if err != nil {
 			return err
 		}
-
-		tbytes, err = d.proxier.DefineTracer(in)
-		if err != nil {
-			return err
+		if len(ltmplts) == 0 {
+			continue
 		}
-
-		log.Info("generate bytes: success")
+		tmplts = append(tmplts, ltmplts...)
 	}
 
-	log.Info("prepare folder: start")
-
-	if err = d.emitter.Prepare(); err != nil {
+	if err = d.opt.emitter.Prepare(); err != nil {
 		return err
 	}
 
-	func() {
-		if err == nil {
-			return
-		}
-		log.Info("remove folder if error found")
-		if err = d.emitter.Prepare(); err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	log.Info("prepare folder: success")
-
-	{
-		log.Infof("write files in folder '%v': start", d.opt.out)
-
-		if err = d.emitter.Write("logger", lbytes); err != nil {
+	for _, template := range tmplts {
+		if err = d.opt.emitter.Write(template.Name(), template.Data()); err != nil {
 			return err
 		}
-
-		if err = d.emitter.Write("tracer", tbytes); err != nil {
-			return err
-		}
-
-		log.Info("write file: success")
 	}
 
 	return nil

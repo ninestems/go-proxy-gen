@@ -4,10 +4,8 @@ package entity
 type ParameterType uint32
 
 const (
-	// ParameterTypeUndefined undefined.
-	ParameterTypeUndefined ParameterType = iota
 	// ParameterTypeInput for input parameters.
-	ParameterTypeInput
+	ParameterTypeInput ParameterType = iota + 1
 	// ParameterTypeOutput for output parameters.
 	ParameterTypeOutput
 )
@@ -130,8 +128,12 @@ const (
 	ValueTypeByte
 	// ValueTypeRune represents a rune value (alias for int32, Unicode code point).
 	ValueTypeRune
+	// ValueTypeError represents error value type.
+	ValueTypeError
 	// ValueTypeStruct represents a struct type.
 	ValueTypeStruct
+	// ValueTypeEmpty is direct meaning that tag has no type.
+	ValueTypeEmpty
 )
 
 // ProxyLogger describe various logger types for proxy logger.

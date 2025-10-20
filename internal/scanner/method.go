@@ -5,9 +5,9 @@ import (
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
-// Scan parses the specified path and returns a list of interfaces
-// filtered by optional names (if provided).
-func (s *Scanner) Scan(in string, names ...string) (*entity.Package, error) {
+// Scan scans the provided path and returns interface descriptions
+// with parsed metadata such as proxy tags.
+func (s *Scanner) Scan(in string) ([]*entity.Interface, error) {
 	log.Debugf("scan file in %s: start", in)
 
 	node, err := file(in)
@@ -17,5 +17,5 @@ func (s *Scanner) Scan(in string, names ...string) (*entity.Package, error) {
 
 	log.Debugf("scan file in %s: success", in)
 
-	return packag(node, names...), nil
+	return extractPackage(node, s.relative, s.names...).Interfaces()
 }

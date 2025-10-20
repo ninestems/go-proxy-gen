@@ -11,7 +11,7 @@ import (
 func file(path string) (*ast.File, error) {
 	f, err := parser.ParseFile(token.NewFileSet(), path, nil, parser.ParseComments)
 	if err != nil {
-		return nil, fmt.Errorf("parsing file in path %s as ast.File with error: %w", path, err)
+		return nil, fmt.Errorf("parsing file in path %s as ast.file with error: %w", path, err)
 	}
 
 	return f, nil

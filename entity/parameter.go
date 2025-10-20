@@ -1,48 +1,78 @@
 package entity
 
+import (
+	"strings"
+)
+
 // Parameter describe input/output function params.
 type Parameter struct {
-	typ    ParameterType
-	name   string
-	source string
+	*CommonParameter          // embedded base fields.
+	names            []string // list of parameter names.
+	path             string   // path is source of parameter, sets `source.{value}` if struct and no point in path.
+	pointer          bool     // mark set true if parameter is pointer.
 }
 
-// NewInputParameter build input type parameter.
-func NewInputParameter(name, source string) *Parameter {
-	return &Parameter{
-		typ:    ParameterTypeInput,
-		name:   name,
-		source: source,
+// NewParameter builds new Parameter instance.
+func NewParameter(
+	ptype ParameterType,
+	path string,
+	names []string,
+	pointer bool,
+) *Parameter {
+	out := Parameter{
+		CommonParameter: NewCommonParameter(ptype, define(path)),
+		names:           names,
+		path:            path,
+		pointer:         pointer,
 	}
-}
 
-// NewOutputParameter build input type parameter.
-func NewOutputParameter(name, source string) *Parameter {
-	return &Parameter{
-		typ:    ParameterTypeOutput,
-		name:   name,
-		source: source,
+	if out.ValueType() == ValueTypeStruct && !strings.Contains(path, ".") {
+		if strings.Contains(path, "*") {
+			out.path = "*source." + strings.TrimLeft(path, "*")
+		} else {
+			out.path = "source." + path
+		}
 	}
+
+	return &out
 }
 
-// Type returns parameter type.
-func (p *Parameter) Type() ParameterType {
-	return p.typ
+// Path return relative of Parameter.
+func (p *Parameter) Path() string {
+	return p.path
 }
 
-// Name returns the parameter name.
+// Name return name of Parameter.
 func (p *Parameter) Name() string {
-	return p.name
+	if len(p.names) > 0 {
+		return p.names[0]
+	}
+	return ""
 }
 
-// Source returns the parameter source type.
-func (p *Parameter) Source() string {
-	return p.source
+// Call prints parameter in template.
+func (p *Parameter) Call() string {
+	return p.names[0] + " " + p.path
 }
 
 // Prepare prepares parameter for latest generate.
 func (p *Parameter) Prepare(idx string) {
-	if p.name == "" {
-		p.name = p.typ.String() + idx
+	switch len(p.names) {
+	case 0:
+		p.names = append(p.names, p.Type().String()+idx)
+	case 1:
+		if p.names[0] == "" {
+			p.names[0] = p.Type().String() + idx
+		}
 	}
+}
+
+// NewInputParameter build input type parameter.
+func NewInputParameter(names []string, path string, pointer bool) *Parameter {
+	return NewParameter(ParameterTypeInput, path, names, pointer)
+}
+
+// NewOutputParameter build output type parameter.
+func NewOutputParameter(names []string, path string, pointer bool) *Parameter {
+	return NewParameter(ParameterTypeOutput, path, names, pointer)
 }

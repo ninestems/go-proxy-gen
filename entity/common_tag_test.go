@@ -90,7 +90,7 @@ func TestCommon(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			obj := NewCommon(tt.args.ttype, tt.args.ptype, tt.args.vtype)
+			obj := NewCommonTag(tt.args.ttype, tt.args.ptype, tt.args.vtype)
 			require.Equal(t, tt.args.ttype, obj.TType())
 			require.Equal(t, tt.args.ptype, obj.PType())
 			require.Equal(t, tt.args.vtype, obj.VType())

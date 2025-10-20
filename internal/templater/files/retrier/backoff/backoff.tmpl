@@ -1,0 +1,47 @@
+{{- define "retrier-implementation-imports"}}
+    // backoff retrier template
+    "time"
+    source "{{ .Path }}"
+    backoff "github.com/cenkalti/backoff/v4"
+    {{- range .Imports }}
+    {{ .Path }}
+    {{- end }}
+{{- end }}
+
+{{- define "retrier-implementation-body"}}
+{{- $ifacename := .IfaceName }} {{- $function := .Function }}   op := func() error {
+    {{ if ge (len $function.Output) 1 }}  {{- /* calling functions in proxy */}}
+        {{- range $i, $p := $function.Output }}
+            {{- if $i }}, {{ end }}{{ $p.Name }}
+        {{- end }} = p.src.{{ $function.Name }}(
+    {{- else }}p.src.{{ $function.Name }}({{- /* list of return equal zero */}}
+    {{- end }}
+
+
+    {{- range $i, $p := $function.Input }}{{- /* make input params */}}
+        {{- if $i }}, {{ end }}{{ $p.Name }}
+    {{- end }})
+    {{- if and (ge (len $function.Output) 1) (eq (index $function.Output (sub (len $function.Output) 1)).Path "error") }}{{- /* resolve error operation start */}}
+        return {{ (index $function.Output (sub (len $function.Output) 1)).Name }}
+    {{- else }}
+        return nil
+    {{- end }}
+    }
+    {{- $tag := $function.RetryTag }}
+    {{- if and (ge (len $function.Output) 1) (eq (index $function.Output (sub (len $function.Output) 1)).Path "error") }}  {{- /* resolve calling operation start */}}
+    {{ (index $function.Output (sub (len $function.Output) 1)).Name }} = backoff.Retry(
+        op,
+        backoff.WithMaxRetries(
+            backoff.NewExponentialBackOff(
+                backoff.WithInitialInterval(time.Duration({{$tag.Start}})),
+                backoff.WithMaxInterval(time.Duration({{$tag.End}})),
+                backoff.WithMultiplier({{$tag.Multiplier}}),
+            ),
+            {{$tag.Attempts}}, // retry times
+        ),
+    )
+    return
+    {{- else }}
+        return
+    {{- end }}
+{{- end }}

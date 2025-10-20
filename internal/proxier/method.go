@@ -1,44 +1,44 @@
 package proxier
 
 import (
-	"bytes"
-	"text/template"
+	"strings"
 
 	"github.com/ninestems/go-proxy-gen/entity"
 )
 
-// DefineLogger generates Go source code for a proxy wrapper
-// for a single interface and returns the code as bytes.
-func (p *Proxier) DefineLogger(in *entity.Package) ([]byte, error) {
-	funcMap := template.FuncMap{
-		"sub": func(a, b int) int { return a - b },
-		"ge":  func(a, b int) bool { return a >= b },
+// Build generates Go source code for all proxy layer.
+func (p *Proxier) Build(in *entity.Interface) ([]*entity.Template, error) {
+	var (
+		out []*entity.Template
+		err error
+	)
+
+	if p.opts.enables.logger || in.IsLogger() {
+		var tmpl []byte
+		tmpl, err = p.logger(in)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, entity.NewTemplate(in.Path(), "logger_"+strings.ToLower(in.Name()), tmpl))
 	}
 
-	tmpl := template.Must(template.New("logger_proxy").Funcs(funcMap).Parse(p.lt.Template()))
-
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, in); err != nil {
-		return nil, err
+	if p.opts.enables.tracer || in.IsTracer() {
+		var tmpl []byte
+		tmpl, err = p.tracer(in)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, entity.NewTemplate(in.Path(), "tracer_"+strings.ToLower(in.Name()), tmpl))
 	}
 
-	return buf.Bytes(), nil
-}
-
-// DefineTracer generates Go source code for a proxy tracer wrapper
-// for a single interface and returns the code as bytes.
-func (p *Proxier) DefineTracer(in *entity.Package) ([]byte, error) {
-	funcMap := template.FuncMap{
-		"sub": func(a, b int) int { return a - b },
-		"ge":  func(a, b int) bool { return a >= b },
+	if p.opts.enables.retrier || in.IsRetrier() {
+		var tmpl []byte
+		tmpl, err = p.retrier(in)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, entity.NewTemplate(in.Path(), "retrier_"+strings.ToLower(in.Name()), tmpl))
 	}
 
-	tmpl := template.Must(template.New("tracer_proxy").Funcs(funcMap).Parse(p.tt.Template()))
-
-	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, in); err != nil {
-		return nil, err
-	}
-
-	return buf.Bytes(), nil
+	return out, nil
 }

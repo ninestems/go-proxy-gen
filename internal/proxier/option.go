@@ -4,13 +4,23 @@ import (
 	"github.com/ninestems/go-proxy-gen/internal"
 )
 
+type enables struct {
+	logger  bool // enable logger generate if interface has tags.
+	tracer  bool // enable tracer generate if interface has tags.
+	retrier bool // enable retrier generate if interface has tags.
+}
+
 type options struct {
+	// enables sets enable for generation layers
+	enables enables
 	// lt logger templater.
 	lt internal.TemplaterI
 	// tt tracer templater.
 	tt internal.TemplaterI
 	// rt retry templater.
 	rt internal.TemplaterI
+	// ct custom templater
+	ct internal.TemplaterI
 }
 
 // Option describe function for applying config.
@@ -34,5 +44,33 @@ func WithTracerTemplater(in internal.TemplaterI) Option {
 func WithRetrierTemplater(in internal.TemplaterI) Option {
 	return func(o *options) {
 		o.rt = in
+	}
+}
+
+// WithCustomTemplater added custom templater.
+func WithCustomTemplater(in internal.TemplaterI) Option {
+	return func(o *options) {
+		o.ct = in
+	}
+}
+
+// WithEnableLoggerTemplater enables/disables generation proxy logger decorator even if empty tags.
+func WithEnableLoggerTemplater(in bool) Option {
+	return func(o *options) {
+		o.enables.logger = in
+	}
+}
+
+// WithEnableTracerTemplater enables/disables generation proxy tracer decorator even if empty tags.
+func WithEnableTracerTemplater(in bool) Option {
+	return func(o *options) {
+		o.enables.tracer = in
+	}
+}
+
+// WithEnableRetrierTemplater enables/disables generation proxy retrier decorator even if empty tags.
+func WithEnableRetrierTemplater(in bool) Option {
+	return func(o *options) {
+		o.enables.retrier = in
 	}
 }

@@ -1,0 +1,103 @@
+{{- define "tracer-implementation-type"}}trace.Tracer
+{{- end }}
+
+{{- define "tracer-implementation-input"}}*traceprovider.TracerProvider
+{{- end }}
+
+{{- define "tracer-implementation-init"}}
+{{- $iface := . }}tp.Tracer("{{ $iface.Name }}ProxyTracer")
+{{- end }}
+
+{{- define "tracer-implementation-imports"}}
+    // tracer template
+    source "{{ .Path }}"
+    trace "go.opentelemetry.io/otel/trace"
+    traceprovider "go.opentelemetry.io/otel/sdk/trace"
+    "fmt"
+    "reflect"
+    "go.opentelemetry.io/otel/attribute"
+    "go.opentelemetry.io/otel/codes"
+    {{- range .Imports }}
+    {{ .Path }}
+    {{- end }}
+{{- end }}
+
+{{- define "tracer-implementation-helpers"}}
+// attr helps define correct type for trace proxy layer.
+func attr(key string, value any) attribute.KeyValue {
+    switch v := value.(type) {
+    case string:
+        return attribute.String(key, v)
+    case bool:
+        return attribute.Bool(key, v)
+    case int:
+        return attribute.Int(key, v)
+    case int64:
+        return attribute.Int64(key, v)
+    case float64:
+        return attribute.Float64(key, v)
+    case []string:
+        return attribute.StringSlice(key, v)
+    case fmt.Stringer:
+        return attribute.String(key, v.String())
+    default:
+        return attribute.String(key, fmt.Sprintf("%v (%s)", value, reflect.TypeOf(value)))
+    }
+}
+{{- end }}
+
+{{- define "tracer-implementation-body"}}
+{{- $ifacename := .IfaceName }}{{- $function := .Function }}{{ (index $function.Input 0).Name }}, span := p.trace.Start({{ (index $function.Input 0).Name }}, "{{ $function.Name }}() started")
+    defer span.End()
+    {{- if or (len $function.TraceContextTags) (len $function.TraceInputTags) }}
+    span.SetAttributes(
+    {{- range $i, $tag := $function.TraceContextTags }}
+        attr("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
+    {{- end }}
+    {{- range $i, $tag := $function.TraceInputTags }}
+        attr("{{ $tag.Alias}}", {{ $tag.Call }}),
+    {{- end }}
+    )
+    {{- end }}
+
+    {{ if ge (len $function.Output) 1 }}{{- /* calling functions in proxy */}}
+    {{- range $i, $p := $function.Output }}
+        {{- if $i }}, {{ end }}{{ $p.Name }}
+    {{- end }} = p.src.{{  $function.Name }}(
+    {{- /* list of return more then zero and have no error or list of return equal zero*/}}
+    {{- else }}p.src.{{ $function.Name }}(
+    {{- end }}
+
+    {{- range $i, $p := $function.Input }}{{- /* make input params */}}
+        {{- if $i }}, {{ end }}{{ $p.Name }}
+    {{- end }})
+
+    {{- if and (ge (len $function.Output) 1) (eq (index $function.Output (sub (len $function.Output) 1)).Path "error") }}{{- /* processed result of calling functions in proxy */}}
+    if {{ (index $function.Output (sub (len $function.Output) 1)).Name }} != nil {
+        span.RecordError({{ (index $function.Output (sub (len $function.Output) 1)).Name }})
+        span.SetStatus(codes.Error, {{ (index $function.Output (sub (len $function.Output) 1)).Name }}.Error())
+    } else {
+    {{- if (len $function.TraceOutputTags) }}
+        span.SetAttributes(
+        {{- range $i, $tag := $function.TraceOutputTags }}
+            attr("{{ $tag.Alias}}", {{ $tag.Call }}),
+        {{- end }}
+        )
+    {{- end }}
+        span.SetStatus(codes.Ok, "{{ $function.Name }}() ends with success")
+    }
+    {{- else if (ge (len $function.Output) 1)}}
+        {{- if (len $function.TraceOutputTags) }}
+            span.SetAttributes(
+            {{- range $i, $tag := $function.TraceOutputTags }}
+                attr("{{ $tag.Alias}}", {{ $tag.Call }}),
+            {{- end }}
+            )
+        {{- end }}
+        span.SetStatus(codes.Ok, "{{ $function.Name }}() ends with success")
+    {{- else }}
+        span.SetStatus(codes.Ok, "{{ $function.Name }}() ends with success")
+    {{- end }}
+
+    return
+{{- end }}

@@ -1,0 +1,52 @@
+{{- define "retrier-imports"}} {{template "retrier-implementation-imports" .}}
+{{- end }}
+
+{{- define "retrier-interface"}}
+
+{{- $iface := . }}
+{{- $ifacename := .Name }}
+
+// {{ $ifacename }}ProxyRetrier proxy wrapper for source.{{ $ifacename }}.
+type {{ $ifacename }}ProxyRetrier struct {
+    src source.{{ .Name }}
+}
+
+// New{{ $ifacename }}ProxyRetrier creates a new proxy retrier for source.{{ $ifacename }}.
+func New{{ $ifacename }}ProxyRetrier(
+    src source.{{ $ifacename }},
+) *{{ $ifacename }}ProxyRetrier {
+    return &{{ $ifacename }}ProxyRetrier{
+        src: src,
+    }
+}
+
+{{- range .Functions }}
+{{- $function := . }}
+
+{{- if $function.IsHaveRetrierTag }}{{template "retrier-function" (dict "IfaceName" $ifacename "Function" $function)}}
+{{- else }} {{template "clear-function" (dict "IfaceName" $ifacename "Function" $function "Type" "Retrier")}}
+{{- end }}
+
+{{- end }} {{- /* end cycle by functions */}}
+
+{{- end }}
+
+
+{{- define "retrier-function"}}
+{{- $function := .Function }}
+{{- $ifacename := .IfaceName }}
+// {{ $function.Name }} is proxy method for source.{{ $ifacename }}.{{ $function.Name }}.
+func (p *{{ $ifacename }}ProxyRetrier) {{ $function.Name }}(
+{{- range $i, $p := $function.Input }}{{- /* printing function input param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Call }}
+{{- end }})
+{{- if eq (len $function.Output) 1 }} ({{ (index $function.Output 0).Call }})
+{{- else if gt (len $function.Output) 1 }} (
+{{- range $i, $p := $function.Output }} {{- /* printing function output param in one line start */}}
+    {{- if $i }}, {{ end }}{{ $p.Call }}
+{{- end }})
+{{- else }}{{- /* needed if output params is empty */}}
+{{- end }} {
+{{template "retrier-implementation-body" (dict "IfaceName" $ifacename "Function" $function)}}
+}
+{{- end }}

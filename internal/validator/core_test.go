@@ -113,7 +113,9 @@ func Test_validateFunction(t *testing.T) {
 		{
 			name: "no error",
 			args: args{
-				in: entity.NewFunction("some", []*entity.Parameter{entity.NewInputParameter("", "context.Context")}, nil, nil),
+				in: entity.NewFunction("some", []*entity.Parameter{
+					entity.NewInputParameter([]string{""}, "context.Context", false),
+				}, nil, nil),
 			},
 			err: nil,
 		},
@@ -281,7 +283,7 @@ func Test_validateTags(t *testing.T) {
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				iparameter: entity.NewInputParameter("in0", "*some source"),
+				iparameter: entity.NewInputParameter([]string{"in0"}, "*some source", false),
 			},
 			err: nil,
 		},
@@ -295,7 +297,7 @@ func Test_validateTags(t *testing.T) {
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				iparameter: entity.NewInputParameter("in0", "*some source"),
+				iparameter: entity.NewInputParameter([]string{"in0"}, "*some source", false),
 				output: []*entity.OutputIO{
 					entity.NewIOOutputTag("", "", "", "", entity.ProxyTypeUndefined),
 				},
@@ -312,7 +314,7 @@ func Test_validateTags(t *testing.T) {
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				iparameter: entity.NewInputParameter("in0", "*some source"),
+				iparameter: entity.NewInputParameter([]string{"in0"}, "*some source", false),
 				output: []*entity.OutputIO{
 					entity.NewIOOutputTag("", "", "", "", entity.ProxyTypeLogger),
 				},
@@ -329,7 +331,7 @@ func Test_validateTags(t *testing.T) {
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				iparameter: entity.NewInputParameter("in0", "*some source"),
+				iparameter: entity.NewInputParameter([]string{"in0"}, "*some source", false),
 				output: []*entity.OutputIO{
 					entity.NewIOOutputTag("some alias", "", "", "", entity.ProxyTypeLogger),
 				},
@@ -346,7 +348,7 @@ func Test_validateTags(t *testing.T) {
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				iparameter: entity.NewInputParameter("in0", "*some source"),
+				iparameter: entity.NewInputParameter([]string{"in0"}, "*some source", false),
 				output: []*entity.OutputIO{
 					entity.NewIOOutputTag("some alias", "", "", "some key", entity.ProxyTypeLogger),
 				},
@@ -363,7 +365,7 @@ func Test_validateTags(t *testing.T) {
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				iparameter: entity.NewInputParameter("in0", "*some source"),
+				iparameter: entity.NewInputParameter([]string{"in0"}, "*some source", false),
 				output: []*entity.OutputIO{
 					entity.NewIOOutputTag("some alias", "some name", "", "some key", entity.ProxyTypeLogger),
 				},
@@ -380,7 +382,7 @@ func Test_validateTags(t *testing.T) {
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				iparameter: entity.NewInputParameter("in0", "*some source"),
+				iparameter: entity.NewInputParameter([]string{"in0"}, "*some source", false),
 				output: []*entity.OutputIO{
 					entity.NewIOOutputTag("some alias", "some name", "some source", "some key", entity.ProxyTypeLogger),
 				},
@@ -398,11 +400,11 @@ func Test_validateTags(t *testing.T) {
 				input: []*entity.InputIO{
 					entity.NewIOInputTag("some alias", "in0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				iparameter: entity.NewInputParameter("in0", "*some source"),
+				iparameter: entity.NewInputParameter([]string{"in0"}, "*some source", false),
 				output: []*entity.OutputIO{
 					entity.NewIOOutputTag("some alias", "out0", "some source", "some key", entity.ProxyTypeLogger),
 				},
-				oparameter: entity.NewInputParameter("out0", "*some source"),
+				oparameter: entity.NewInputParameter([]string{"out0"}, "*some source", false),
 			},
 			err: nil,
 		},

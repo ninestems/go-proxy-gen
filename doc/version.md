@@ -29,7 +29,7 @@ The process follows a progressive, quality-focused approach.
 - [ ] 80%+ test coverage for core logic
 - [ ] Local configuration support (file-based settings)
     - For switching logger/tracer implementations
-- [ ] Retry proxy layer generation
+- [x] Retry proxy layer generation
 - [ ] Documentation updated with:
     - Retry configuration examples
     - Template customization explanation
