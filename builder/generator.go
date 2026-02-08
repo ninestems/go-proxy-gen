@@ -2,11 +2,7 @@
 package builder
 
 import (
-	"bufio"
-	"os"
-	"path/filepath"
-	"strings"
-
+	"github.com/ninestems/go-proxy-gen/config"
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 
 	"github.com/ninestems/go-proxy-gen/internal/definer"
@@ -19,117 +15,60 @@ import (
 	"github.com/ninestems/go-proxy-gen/internal/validator"
 )
 
-// getModuleName читает имя модуля из файла go.mod по указанному пути.
-func getModuleName(goModPath string) string {
-	f, err := os.Open(goModPath)
-	if err != nil {
-		log.Fatalf("failed to open go.mod: %v", err)
-	}
-	defer func() {
-		if err = f.Close(); err != nil {
-			log.Fatalf("failed to close go.mod file: %v", err)
-		}
-	}()
-
-	scnnr := bufio.NewScanner(f)
-	for scnnr.Scan() {
-		line := strings.TrimSpace(scnnr.Text())
-		if strings.HasPrefix(line, "module ") {
-			return strings.TrimSpace(strings.TrimPrefix(line, "module "))
-		}
-	}
-
-	return ""
-}
-
-// findGoModRoot ищет директорию с go.mod, начиная с файла и двигаясь вверх.
-func findGoModRoot(startPath string) string {
-	dir := filepath.Dir(startPath)
-	for {
-		modPath := filepath.Join(dir, "go.mod")
-		if _, err := os.Stat(modPath); err == nil {
-			return dir
-		}
-		parent := filepath.Dir(dir)
-		if parent == dir {
-			break
-		}
-		dir = parent
-	}
-	log.Fatal("go.mod not found")
-	return ""
-}
-
-// GetImportPathWithoutPackage возвращает модульный путь без имени пакета,
-// то есть до родительской директории относительно пакета.
-func getRelative(filePath string) string {
-	moduleRoot := findGoModRoot(filePath)
-	moduleName := getModuleName(filepath.Join(moduleRoot, "go.mod"))
-
-	if moduleName == "" {
-		log.Fatalf("failed to find go.mod for module root: %s", moduleRoot)
-	}
-
-	fileDir := filepath.Dir(filePath)
-
-	relPath, err := filepath.Rel(moduleRoot, fileDir)
-	if err != nil {
-		log.Fatalf("failed to get relative path: %v", err)
-	}
-
-	parentPath := filepath.Dir(relPath)
-
-	if parentPath == "." {
-		return moduleName
-	}
-	return moduleName + "/" + filepath.ToSlash(parentPath)
-}
-
 // Build assembles components into an executable case
 func Build(
-	in, out string,
-	ifaces, types []string,
+	opts ...config.Option,
 ) *generator.Generator {
+	cfg := config.DefaultConfig()
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
 	log.Info("initializing tool: start")
 
-	log.Debugf("input path: %v", in)
-	log.Debugf("output path: %v", out)
-	log.Debugf("relative path: %v", getRelative(in))
-	log.Debugf("interfaces list: %v", ifaces)
-	log.Debugf("proxy layers types: %v", types)
-
-	pars := parser.New(
-		parser.WithInPath(in),
-		parser.WithScanner(
-			scanner.New(
-				scanner.WithRelativePath(getRelative(in)),
-				scanner.WithIfaces(ifaces),
-			)),
-		parser.WithValidator(validator.New()),
-	)
+	for _, path := range cfg.Paths {
+		log.Debugf("input path: %v", path.In)
+		log.Debugf("output paths list: %v", path.Outwards)
+		log.Debugf("relative path: %v", path.Relative)
+		log.Debugf("interfaces names list: %v", path.Names)
+	}
 
 	prxr := proxier.New(
-		proxier.WithLoggerTemplater(templater.NewLogger("")),
-		proxier.WithTracerTemplater(templater.NewTracer("")),
-		proxier.WithRetrierTemplater(templater.NewRetrier("")),
-		proxier.WithEnableLoggerTemplater(true),
-		proxier.WithEnableTracerTemplater(true),
-		proxier.WithEnableRetrierTemplater(true),
+		proxier.WithLoggerTemplater(templater.NewLogger()),   // TODO 18
+		proxier.WithTracerTemplater(templater.NewTracer()),   // TODO 18
+		proxier.WithRetrierTemplater(templater.NewRetrier()), // TODO 18
+		proxier.WithEnableLoggerTemplater(cfg.Proxy.Logger),
+		proxier.WithEnableTracerTemplater(cfg.Proxy.Tracer),
+		proxier.WithEnableRetrierTemplater(cfg.Proxy.Retrier),
 	)
 
-	emtr := emitter.New(
-		emitter.WithPath(out),
-	)
+	var gopts = make([]generator.Option, 0, len(cfg.Paths))
+	for _, path := range cfg.Paths {
+		pars := parser.New(
+			parser.WithInPath(path.In),
+			parser.WithScanner(
+				scanner.New(
+					scanner.WithRelativePath(path.Relative),
+					scanner.WithIfaces(path.Names),
+				)),
+			parser.WithValidator(validator.New()),
+		)
 
-	def := definer.New(
-		definer.WithOutPath(out),
-		definer.WithProxier(prxr),
-		definer.WithEmitter(emtr),
-	)
+		def := definer.New(
+			definer.WithProxier(prxr),
+			definer.WithEmitter(
+				emitter.New(
+					emitter.WithPath(path.Outwards...),
+				),
+			),
+		)
+
+		gopts = append(gopts, generator.WithPair(pars, def))
+	}
 
 	log.Info("initializing tool: success")
+
 	return generator.New(
-		generator.WithParser(pars),
-		generator.WithDefiner(def),
+		gopts...,
 	)
 }

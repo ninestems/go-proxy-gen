@@ -16,14 +16,15 @@ type Logger struct {
 }
 
 // NewLogger builds new instance of Logger.
-func NewLogger(source string) *Logger {
-	if source == "" {
-		source = baseLogger + loggerTemplate + clearTemplate + loggerZapTemplate
+func NewLogger(source ...string) *Logger {
+	template := baseLogger + loggerTemplate + clearTemplate + loggerZapTemplate
+	if len(source) > 0 && len(source[0]) > 0 {
+		template = source[0]
 	}
 
 	log.Debugf("templater logger initialized")
 
-	return &Logger{source}
+	return &Logger{template}
 }
 
 // Template returns template for logger.

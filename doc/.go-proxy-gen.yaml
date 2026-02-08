@@ -1,0 +1,17 @@
+# must be for backward compatibility
+version: "1"
+
+# turn off/on debug level for logger
+debug: true
+
+# template is chapter with path to your own template implementations.
+template:
+  logger: ""
+  tracer: ""
+  retrier: ""
+
+# proxy allow to turn off/on generating proxy layer.
+proxy:
+  logger: true
+  tracer: true
+  retrier: true

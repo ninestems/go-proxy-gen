@@ -1,72 +1,167 @@
-// Package config describe how app must be configured.
 package config
 
-// Template describes a configuration template for logger, tracer or retrier.
+import (
+	"path/filepath"
+	"runtime"
+	"strings"
+	"time"
+)
+
+type App struct {
+	Date      string
+	Version   string
+	GoVersion string
+	Debug     bool
+}
+
+// Template describes a configuration template for custom tmpl file implementations.
 type Template struct {
-	Custom string // path to custom template directory (optional)
-	Value  string // template value
+	Path string // path to custom template
+}
+
+type Templates struct {
+	Logger  Template
+	Tracer  Template
+	Retrier Template
+}
+
+type Proxy struct {
+	Logger  bool // Logger enables generate for proxy logger.
+	Tracer  bool // Tracer enables generate for proxy tracer.
+	Retrier bool // Retrier enables generate for proxy retrier.
 }
 
 // Path describes source and destination folders.
 type Path struct {
-	From string // path to the source Go code
-	To   string // path to write generated files
+	In       string   // path to the source Go code
+	Relative string   // relative path
+	Outwards []string // paths to location for store generated files
+	Names    []string // list names of interfaces to include generation
 }
 
-// Config holds all settings for generation.
 type Config struct {
-	Debug   bool
-	Logger  Template
-	Tracer  Template
-	Retrier Template
-	Path    Path
-	Ifaces  []string
+	App       App
+	Templates Templates
+	Proxy     Proxy
+	Paths     []Path
 }
 
-// Option is a function that modifies the Config.
-type Option func(*Config)
-
-// WithDebug enables or disables debug mode.
-//
-// Now its unused parameter, added for future compatibility.
-func WithDebug(debug bool) Option {
-	return func(c *Config) {
-		c.Debug = debug
+func DefaultConfig() Config {
+	return Config{
+		App: App{
+			Date:      time.Now().UTC().Format(time.RFC3339),
+			Version:   "UNKNOW",
+			GoVersion: runtime.Version(),
+			Debug:     false,
+		},
+		Templates: Templates{
+			Logger:  Template{},
+			Tracer:  Template{},
+			Retrier: Template{},
+		},
+		Proxy: Proxy{
+			Logger:  true,
+			Tracer:  true,
+			Retrier: true,
+		},
+		Paths: nil,
 	}
 }
 
-// WithLogger sets the logger template.
-func WithLogger(t Template) Option {
-	return func(c *Config) {
-		c.Logger = t
+type Option func(v2 *Config)
+
+func WithAppBuildDate(date string) Option {
+	return func(cfg *Config) {
+		cfg.App.Date = date
 	}
 }
 
-// WithTracer sets the tracer template.
-func WithTracer(t Template) Option {
-	return func(c *Config) {
-		c.Tracer = t
+func WithAppBuildVersion(v string) Option {
+	return func(cfg *Config) {
+		cfg.App.Version = v
 	}
 }
 
-// WithRetrier sets the retrier template.
-func WithRetrier(t Template) Option {
-	return func(c *Config) {
-		c.Retrier = t
+func WithAppBuildGoVersion(v string) Option {
+	return func(cfg *Config) {
+		cfg.App.GoVersion = v
 	}
 }
 
-// WithPath sets the input/output paths.
-func WithPath(from, to string) Option {
-	return func(c *Config) {
-		c.Path.From = from
-		c.Path.To = to
+// WithAppBuildDebug TODO maybe useless.
+func WithAppBuildDebug(v bool) Option {
+	return func(cfg *Config) {
+		cfg.App.Debug = v
 	}
 }
 
-// WithInterfaces sets the target interface names.
-func WithInterfaces(ifaces []string) Option {
-	return func(c *Config) {
-		c.Ifaces = ifaces
+func WithTemplateLogger(in string) Option {
+	return func(cfg *Config) {
+		cfg.Templates.Logger = Template{Path: in}
+	}
+}
+
+func WithTemplateTracer(in string) Option {
+	return func(cfg *Config) {
+		cfg.Templates.Tracer = Template{Path: in}
+	}
+}
+
+func WithTemplateRetrier(in string) Option {
+	return func(cfg *Config) {
+		cfg.Templates.Retrier = Template{Path: in}
+	}
+}
+
+func WithProxyLoggerEnable(in bool) Option {
+	return func(cfg *Config) {
+		cfg.Proxy.Logger = in
+	}
+}
+
+func WithProxyTracerEnable(in bool) Option {
+	return func(cfg *Config) {
+		cfg.Proxy.Tracer = in
+	}
+}
+
+func WithProxyRetrierEnable(in bool) Option {
+	return func(cfg *Config) {
+		cfg.Proxy.Retrier = in
+	}
+}
+
+func WithPath(in string, names []string, outs []string) Option {
+	var (
+		idx      int
+		outPaths []string
+		inPaths  = strings.Split(in, "/")
+		relative = getRelative(in)
+	)
+
+	for idx = range inPaths {
+		if inPaths[idx] == relative.Module() {
+			break
+		}
+	}
+
+	switch {
+	case len(outs) > 0:
+		rootPath := "/" + filepath.Join(inPaths[:idx+1]...)
+
+		for _, out := range outs {
+			outPaths = append(outPaths, filepath.Join(rootPath, out))
+		}
+	default:
+		outPaths = append(outPaths, strings.Replace(in, inPaths[len(inPaths)-1], "proxy", 1))
+	}
+
+	return func(cfg *Config) {
+		cfg.Paths = append(cfg.Paths, Path{
+			In:       in,
+			Relative: relative.String(),
+			Outwards: outPaths,
+			Names:    names,
+		})
 	}
 }

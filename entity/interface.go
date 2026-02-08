@@ -1,9 +1,5 @@
 package entity
 
-import (
-	"fmt"
-)
-
 // Layer describe selected layer to generate proxy.
 type Layer struct {
 	logger  bool
@@ -125,6 +121,5 @@ func (i *Interface) IsTracer() bool {
 
 // IsRetrier return true if retrier layer was sets.
 func (i *Interface) IsRetrier() bool {
-	fmt.Printf("%s is retrier\n", i.name)
 	return i.layer.retrier
 }

@@ -10,7 +10,7 @@ var _ internal.EmitterI = (*Emitter)(nil)
 
 // Emitter describes logic saving bytes for file on disk
 type Emitter struct {
-	path string
+	paths []string
 }
 
 // New builds new instance of Emitter.
@@ -22,6 +22,6 @@ func New(opts ...Option) *Emitter {
 
 	log.Debugf("emitter initialized")
 	return &Emitter{
-		path: cfg.path,
+		paths: cfg.paths,
 	}
 }

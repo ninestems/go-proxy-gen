@@ -9,14 +9,14 @@ import (
 // Parse parses the specified path and returns a list of interfaces
 // filtered by optional names (if provided).
 func (p *Parser) Parse() ([]*entity.Interface, error) {
-	log.Infof("scan file in path '%v': start", p.opt.in)
+	log.Infof("scaning files: start")
 
 	ifas, err := p.scanner.Scan(p.opt.in)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Info("scan file: success")
+	log.Info("scaning files: success")
 
 	log.Info("validate markdown: start")
 

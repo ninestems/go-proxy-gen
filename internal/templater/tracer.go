@@ -17,13 +17,14 @@ type Tracer struct {
 }
 
 // NewTracer builds new instance of Tracer
-func NewTracer(source string) *Tracer {
-	if source == "" {
-		source = baseTracer + tracerTemplate + clearTemplate + tracerOpenTelemetryTemplate
+func NewTracer(source ...string) *Tracer {
+	template := baseTracer + tracerTemplate + clearTemplate + tracerOpenTelemetryTemplate
+	if len(source) > 0 && len(source[0]) > 0 {
+		template = source[0]
 	}
 
 	log.Debugf("templater tracer initialized")
-	return &Tracer{source}
+	return &Tracer{template}
 }
 
 // Template returns template for logger.

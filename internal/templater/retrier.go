@@ -16,13 +16,14 @@ type Retrier struct {
 }
 
 // NewRetrier builds new instance of Retrier.
-func NewRetrier(source string) *Retrier {
-	if source == "" {
-		source = baseRetrier + retrierTemplate + clearTemplate + retrierBackoffTemplate
+func NewRetrier(source ...string) *Retrier {
+	template := baseRetrier + retrierTemplate + clearTemplate + retrierBackoffTemplate
+	if len(source) > 0 && len(source[0]) > 0 {
+		template = source[0]
 	}
 
 	log.Debugf("templater retrier initialized")
-	return &Retrier{source}
+	return &Retrier{template}
 }
 
 // Template returns template for retrier.

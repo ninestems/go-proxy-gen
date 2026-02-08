@@ -1,9 +1,5 @@
 package entity
 
-import (
-	"fmt"
-)
-
 // OwnershipInput описывает входной объект
 type ownershipper interface {
 	IsForLogger() bool
@@ -167,10 +163,8 @@ func (t *Tags) IsHaveTags(in ProxyType) bool {
 	case ProxyTypeLogger:
 		return t.logger
 	case ProxyTypeTracer:
-		fmt.Println("IsHaveTags ProxyTypeTracer", t.tracer)
 		return t.tracer
 	case ProxyTypeRetrier:
-		fmt.Println("IsHaveTags ProxyTypeRetrier", t.retrier)
 		return t.retrier
 	default:
 		return false

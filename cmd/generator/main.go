@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ninestems/go-proxy-gen/builder"
+	"github.com/ninestems/go-proxy-gen/config"
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
@@ -26,12 +27,10 @@ var (
 var (
 	// inPathFlag represents path to input files, which need to read.
 	inPathFlg string
-	// outPathFlg represents path to output directory, where need placed generated proxy.
+	// outPathFlg represents list of paths to output directory, where need placed generated proxy.
 	outPathFlg string
-	// ifacesFlg list of interfaces which need to get a proxy layers.
+	// ifacesFlg names of interface from file for generating.
 	ifacesFlg string
-	// typesFlg represents list of types proxy, which need to generate.
-	typesFlg string
 	// logLevel represents log level.
 	logLevel string
 	// showVersion represents standard way to show build version and
@@ -45,12 +44,11 @@ func prepareFlags() {
 		defaultIn = "." // fallback
 	}
 
-	flag.StringVar(&inPathFlg, "in", defaultIn, "Source to source package or file (default from $GOFILE)")
-	flag.StringVar(&outPathFlg, "out", "./proxy", "Output directory for generated files")
-	flag.StringVar(&ifacesFlg, "interfaces", "", "Comma-separated list of interface names")
-	flag.StringVar(&typesFlg, "types", "log,trace,retry", "Comma-separated list of proxy typesFlg (log,trace,retry)")
-	flag.StringVar(&logLevel, "log-level", "info", "Set level log to debug, default value info")
-	flag.BoolVar(&showVersion, "version", false, "Print version and exit")
+	flag.StringVar(&inPathFlg, "in", defaultIn, "Source to source package or file (default from $GOFILE).")
+	flag.StringVar(&outPathFlg, "out", "", "Comma-separated list path to destination package for generated files, required relative path from root of project.") //nolint:lll
+	flag.StringVar(&ifacesFlg, "interfaces", "", "Comma-separated list of interface names.")
+	flag.StringVar(&logLevel, "log-level", "info", "Set level log to debug (default value info).")
+	flag.BoolVar(&showVersion, "version", false, "Print version and exit.")
 
 	flag.Parse()
 }
@@ -65,29 +63,31 @@ func show() bool {
 	return showVersion
 }
 
-// flagsToParameters prepare parameters.
-func flagsToParameters() (string, string, []string, []string, error) {
+func prepareInputPath() (string, error) {
 	in, err := filepath.Abs(inPathFlg)
 	if err != nil {
-		return "", "", nil, nil, fmt.Errorf("failed to resolve absolute path for -in flag: %w", err)
+		return "", fmt.Errorf("failed to resolve absolute path for -in flag: %w", err)
 	}
 
-	out, err := filepath.Abs(outPathFlg)
-	if err != nil {
-		return "", "", nil, nil, fmt.Errorf("failed to resolve absolute path for -out flag: %w", err)
+	return in, nil
+}
+
+func prepareOutputPath() []string {
+	outs := strings.Split(outPathFlg, ",")
+	if len(outs) == 1 && outs[0] == "" {
+		outs = []string{}
 	}
 
+	return outs
+}
+
+func prepareInterfaceNames() []string {
 	ifaces := strings.Split(ifacesFlg, ",")
 	if len(ifaces) == 1 && ifaces[0] == "" {
 		ifaces = []string{}
 	}
 
-	types := strings.Split(typesFlg, ",")
-	if len(types) == 1 && types[0] == "" {
-		types = []string{}
-	}
-
-	return in, out, ifaces, types, nil
+	return ifaces
 }
 
 func main() {
@@ -96,17 +96,36 @@ func main() {
 	log.SetLevel(logLevel)
 
 	if show() {
-		// only for version print
-		return
+		return // only for version print
 	}
 
-	in, out, ifaces, types, err := flagsToParameters()
+	log.Debug("FOR TESTING PURPOSE in path", inPathFlg)
+	log.Debug("FOR TESTING PURPOSE out path", outPathFlg)
+
+	inputPath, err := prepareInputPath()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	gen := builder.Build(in, out, ifaces, types)
-	if err = gen.Generate(); err != nil {
+	outputPaths := prepareOutputPath()
+
+	names := prepareInterfaceNames()
+
+	log.Debug("FOR TESTING PURPOSE input path", inputPath)
+	log.Debug("FOR TESTING PURPOSE out paths", outputPaths)
+	log.Debug("FOR TESTING PURPOSE names", names)
+
+	gen := builder.Build(
+		config.WithAppBuildDate(BuildDate),
+		config.WithAppBuildVersion(BuildVersion),
+		config.WithAppBuildGoVersion(BuildGoVersion),
+		config.WithProxyLoggerEnable(true),
+		config.WithProxyTracerEnable(true),
+		config.WithProxyRetrierEnable(true),
+		config.WithPath(inputPath, names, outputPaths),
+	)
+
+	if err = gen.GenerateV2(); err != nil {
 		log.Fatalf("generate proxy ends with error: %v", err)
 	}
 }
