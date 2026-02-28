@@ -11,7 +11,7 @@ var (
 	tracerOpenTelemetryTemplate string
 )
 
-// Tracer describe ways to get string template of tracer.
+// Tracer describe ways to get string source of tracer.
 type Tracer struct {
 	source string
 }
@@ -27,7 +27,7 @@ func NewTracer(source ...string) *Tracer {
 	return &Tracer{template}
 }
 
-// Template returns template for logger.
+// Template returns source for logger.
 func (t *Tracer) Template() string {
 	return t.source
 }

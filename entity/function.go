@@ -42,6 +42,10 @@ func (f *Function) Tags() *Tags {
 	return f.tags
 }
 
+func (f *Function) IsHaveTags(in ProxyType) bool {
+	return f.tags.IsHaveTags(in)
+}
+
 // IsHaveLoggerTag returns true if function contains logger tag.
 func (f *Function) IsHaveLoggerTag() bool {
 	return f.tags.IsHaveTags(ProxyTypeLogger)

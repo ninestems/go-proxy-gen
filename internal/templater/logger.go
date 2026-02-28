@@ -10,7 +10,7 @@ import (
 //go:embed files/logger/zap/zap.tmpl
 var loggerZapTemplate string
 
-// Logger describe ways to get string template of logger.
+// Logger describe ways to get string source of logger.
 type Logger struct {
 	source string
 }
@@ -27,7 +27,7 @@ func NewLogger(source ...string) *Logger {
 	return &Logger{template}
 }
 
-// Template returns template for logger.
+// Template returns source for logger.
 func (l *Logger) Template() string {
 	return l.source
 }

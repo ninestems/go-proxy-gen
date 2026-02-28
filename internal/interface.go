@@ -55,6 +55,12 @@ type EmitterI interface {
 
 // TemplaterI defines how logic extract template for next generation.
 type TemplaterI interface {
+	// Name return name of layer from template.
+	Name() string
+	// Proxy return type of proxy layer of template.
+	Proxy() string
+	// Implementation return type of implementation of template.
+	Implementation() string
 	// Template returns template for logger.
 	Template() string
 }

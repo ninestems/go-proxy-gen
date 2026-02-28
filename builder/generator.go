@@ -2,6 +2,8 @@
 package builder
 
 import (
+	"fmt"
+
 	"github.com/ninestems/go-proxy-gen/config"
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 
@@ -16,14 +18,7 @@ import (
 )
 
 // Build assembles components into an executable case
-func Build(
-	opts ...config.Option,
-) *generator.Generator {
-	cfg := config.DefaultConfig()
-	for _, opt := range opts {
-		opt(&cfg)
-	}
-
+func Build(cfg *config.Config) (*generator.Generator, error) {
 	log.Info("initializing tool: start")
 
 	for _, path := range cfg.Paths {
@@ -33,13 +28,20 @@ func Build(
 		log.Debugf("interfaces names list: %v", path.Names)
 	}
 
+	var opts []proxier.Option
+	for _, l := range cfg.Layers {
+		templateLayer := templater.NewLayer(l.Name, l.Proxy, l.Implementation, l.Path)
+
+		err := templateLayer.Init()
+		if err != nil {
+			return nil, fmt.Errorf("failed to initialize layer %q: %w", l.Name, err)
+		}
+
+		opts = append(opts, proxier.WithTemplater(templateLayer))
+	}
+
 	prxr := proxier.New(
-		proxier.WithLoggerTemplater(templater.NewLogger()),   // TODO 18
-		proxier.WithTracerTemplater(templater.NewTracer()),   // TODO 18
-		proxier.WithRetrierTemplater(templater.NewRetrier()), // TODO 18
-		proxier.WithEnableLoggerTemplater(cfg.Proxy.Logger),
-		proxier.WithEnableTracerTemplater(cfg.Proxy.Tracer),
-		proxier.WithEnableRetrierTemplater(cfg.Proxy.Retrier),
+		opts...,
 	)
 
 	var gopts = make([]generator.Option, 0, len(cfg.Paths))
@@ -70,5 +72,5 @@ func Build(
 
 	return generator.New(
 		gopts...,
-	)
+	), nil
 }

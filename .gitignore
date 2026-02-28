@@ -26,3 +26,5 @@ go.work.sum
 
 # temp for testing dir
 /tt
+
+.DS_Store

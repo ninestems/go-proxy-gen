@@ -33,6 +33,8 @@ var (
 	ifacesFlg string
 	// logLevel represents log level.
 	logLevel string
+	// configPath represents path to local yaml file.
+	configPath string
 	// showVersion represents standard way to show build version and
 	showVersion bool
 )
@@ -44,10 +46,11 @@ func prepareFlags() {
 		defaultIn = "." // fallback
 	}
 
-	flag.StringVar(&inPathFlg, "in", defaultIn, "Source to source package or file (default from $GOFILE).")
+	flag.StringVar(&inPathFlg, "in", defaultIn, "Path to source package or file (default from $GOFILE).")
 	flag.StringVar(&outPathFlg, "out", "", "Comma-separated list path to destination package for generated files, required relative path from root of project.") //nolint:lll
 	flag.StringVar(&ifacesFlg, "interfaces", "", "Comma-separated list of interface names.")
 	flag.StringVar(&logLevel, "log-level", "info", "Set level log to debug (default value info).")
+	flag.StringVar(&configPath, "config-file", ".go-proxy-gen.yaml", "Using local config (if exists) for extra control of cli functionality.") //nolint:lll
 	flag.BoolVar(&showVersion, "version", false, "Print version and exit.")
 
 	flag.Parse()
@@ -99,33 +102,28 @@ func main() {
 		return // only for version print
 	}
 
-	log.Debug("FOR TESTING PURPOSE in path", inPathFlg)
-	log.Debug("FOR TESTING PURPOSE out path", outPathFlg)
-
 	inputPath, err := prepareInputPath()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	outputPaths := prepareOutputPath()
-
-	names := prepareInterfaceNames()
-
-	log.Debug("FOR TESTING PURPOSE input path", inputPath)
-	log.Debug("FOR TESTING PURPOSE out paths", outputPaths)
-	log.Debug("FOR TESTING PURPOSE names", names)
-
-	gen := builder.Build(
+	cfg, err := config.Init(
+		config.WithLocalConfig(configPath),
 		config.WithAppBuildDate(BuildDate),
 		config.WithAppBuildVersion(BuildVersion),
 		config.WithAppBuildGoVersion(BuildGoVersion),
-		config.WithProxyLoggerEnable(true),
-		config.WithProxyTracerEnable(true),
-		config.WithProxyRetrierEnable(true),
-		config.WithPath(inputPath, names, outputPaths),
+		config.WithPath(inputPath, prepareInterfaceNames(), prepareOutputPath()),
 	)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	if err = gen.GenerateV2(); err != nil {
+	gen, err := builder.Build(cfg)
+	if err != nil {
+		log.Fatalf("builds generator ends with fail: %v", err)
+	}
+
+	if err = gen.Generate(); err != nil {
 		log.Fatalf("generate proxy ends with error: %v", err)
 	}
 }

@@ -10,7 +10,7 @@ import (
 //go:embed files/retrier/backoff/backoff.tmpl
 var retrierBackoffTemplate string
 
-// Retrier describe ways to get string template of retrier.
+// Retrier describe ways to get string source of retrier.
 type Retrier struct {
 	source string
 }
@@ -26,7 +26,7 @@ func NewRetrier(source ...string) *Retrier {
 	return &Retrier{template}
 }
 
-// Template returns template for retrier.
+// Template returns source for retrier.
 func (l *Retrier) Template() string {
 	return l.source
 }

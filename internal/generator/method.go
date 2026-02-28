@@ -10,23 +10,6 @@ import (
 func (g *Generator) Generate() error {
 	log.Infof("generate: start")
 
-	ifas, err := g.parser.Parse()
-	if err != nil {
-		return err
-	}
-
-	if err = g.definer.Define(ifas); err != nil {
-		return err
-	}
-
-	log.Infof("generate: success")
-
-	return nil
-}
-
-func (g *Generator) GenerateV2() error {
-	log.Infof("generate: start")
-
 	for _, p := range g.pairs {
 		ifas, err := p.parser.Parse()
 		if err != nil {

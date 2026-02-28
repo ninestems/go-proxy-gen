@@ -18,6 +18,8 @@ type Interface struct {
 }
 
 // NewInterface builds new Interface.
+// 
+// Deprecated
 func NewInterface(name string, fns []*Function) *Interface {
 	return &Interface{
 		name:      name,
@@ -40,9 +42,9 @@ func NewInterfaceV2(
 	)
 
 	for _, fn := range fns {
-		logger = logger || fn.IsHaveLoggerTag()
-		tracer = tracer || fn.IsHaveTracerTag()
-		retrier = retrier || fn.IsHaveRetrierTag()
+		logger = logger || fn.IsHaveTags(ProxyTypeLogger)
+		tracer = tracer || fn.IsHaveTags(ProxyTypeTracer)
+		retrier = retrier || fn.IsHaveTags(ProxyTypeRetrier)
 	}
 
 	out := Interface{
@@ -87,25 +89,6 @@ func (i *Interface) Imports() []*Import {
 func (i *Interface) Prepare() {
 	for _, fn := range i.functions {
 		fn.Prepare()
-	}
-}
-
-// SetLayer select active layer to generate code.
-func (i *Interface) SetLayer(in ProxyType) {
-	switch in {
-	case ProxyTypeLogger:
-		i.layer.logger = true
-		i.layer.tracer = false
-		i.layer.retrier = false
-	case ProxyTypeTracer:
-		i.layer.logger = false
-		i.layer.tracer = true
-		i.layer.retrier = false
-	case ProxyTypeRetrier:
-		i.layer.logger = false
-		i.layer.tracer = false
-		i.layer.retrier = true
-	default:
 	}
 }
 

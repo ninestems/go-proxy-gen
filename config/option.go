@@ -1,34 +1,30 @@
+// Package config contains structs and way to configuration of cli.
 package config
 
 import (
+	"errors"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
 )
 
+// App describe base info about cli.
 type App struct {
-	Date      string
-	Version   string
-	GoVersion string
-	Debug     bool
+	Debug         bool
+	Date          string
+	Version       string
+	GoVersion     string
+	ConfigVersion string
+	LocalConfig   string
 }
 
-// Template describes a configuration template for custom tmpl file implementations.
-type Template struct {
-	Path string // path to custom template
-}
-
-type Templates struct {
-	Logger  Template
-	Tracer  Template
-	Retrier Template
-}
-
-type Proxy struct {
-	Logger  bool // Logger enables generate for proxy logger.
-	Tracer  bool // Tracer enables generate for proxy tracer.
-	Retrier bool // Retrier enables generate for proxy retrier.
+// Layer describes a configuration template for custom tmpl file implementations.
+type Layer struct {
+	Name           string
+	Proxy          string
+	Implementation string
+	Path           string
 }
 
 // Path describes source and destination folders.
@@ -40,35 +36,73 @@ type Path struct {
 }
 
 type Config struct {
-	App       App
-	Templates Templates
-	Proxy     Proxy
-	Paths     []Path
+	IsCorrupted bool
+	App         App
+	Layers      []Layer
+	Paths       []Path
+}
+
+func Init(opts ...Option) (*Config, error) {
+	cfg := DefaultConfig()
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
+	if len(cfg.App.LocalConfig) > 0 {
+		local, err := readLocal(cfg.App.LocalConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		if local != nil {
+			for _, opt := range local.Options() {
+				opt(&cfg)
+			}
+		}
+	}
+
+	if cfg.IsCorrupted {
+		return nil, errors.New("corrupted config")
+	}
+
+	return &cfg, nil
+}
+
+func (cfg *Config) ApplyLocal(in *LocalConfig) {
+	cfg.App.Debug = in.Debug
 }
 
 func DefaultConfig() Config {
 	return Config{
 		App: App{
-			Date:      time.Now().UTC().Format(time.RFC3339),
-			Version:   "UNKNOW",
-			GoVersion: runtime.Version(),
-			Debug:     false,
+			Debug:         false,
+			Date:          time.Now().UTC().Format(time.RFC3339),
+			Version:       "UNKNOW",
+			GoVersion:     runtime.Version(),
+			ConfigVersion: "UNKNOW",
 		},
-		Templates: Templates{
-			Logger:  Template{},
-			Tracer:  Template{},
-			Retrier: Template{},
-		},
-		Proxy: Proxy{
-			Logger:  true,
-			Tracer:  true,
-			Retrier: true,
+		Layers: []Layer{
+			{
+				Name:           "logger",
+				Proxy:          "logger",
+				Implementation: "zap",
+			},
+			{
+				Name:           "tracer",
+				Proxy:          "tracer",
+				Implementation: "opentelemetry",
+			},
+			{
+				Name:           "retrier",
+				Proxy:          "retrier",
+				Implementation: "backoff",
+			},
 		},
 		Paths: nil,
 	}
 }
 
-type Option func(v2 *Config)
+type Option func(cfg *Config)
 
 func WithAppBuildDate(date string) Option {
 	return func(cfg *Config) {
@@ -88,46 +122,25 @@ func WithAppBuildGoVersion(v string) Option {
 	}
 }
 
-// WithAppBuildDebug TODO maybe useless.
+func WithLocalConfig(in string) Option {
+	return func(cfg *Config) {
+		if len(in) > 0 {
+			return
+		}
+		cfg.App.LocalConfig = in
+	}
+}
+
+// WithAppBuildDebug
 func WithAppBuildDebug(v bool) Option {
 	return func(cfg *Config) {
 		cfg.App.Debug = v
 	}
 }
 
-func WithTemplateLogger(in string) Option {
+func WithConfigVersion(v string) Option {
 	return func(cfg *Config) {
-		cfg.Templates.Logger = Template{Path: in}
-	}
-}
-
-func WithTemplateTracer(in string) Option {
-	return func(cfg *Config) {
-		cfg.Templates.Tracer = Template{Path: in}
-	}
-}
-
-func WithTemplateRetrier(in string) Option {
-	return func(cfg *Config) {
-		cfg.Templates.Retrier = Template{Path: in}
-	}
-}
-
-func WithProxyLoggerEnable(in bool) Option {
-	return func(cfg *Config) {
-		cfg.Proxy.Logger = in
-	}
-}
-
-func WithProxyTracerEnable(in bool) Option {
-	return func(cfg *Config) {
-		cfg.Proxy.Tracer = in
-	}
-}
-
-func WithProxyRetrierEnable(in bool) Option {
-	return func(cfg *Config) {
-		cfg.Proxy.Retrier = in
+		cfg.App.ConfigVersion = v
 	}
 }
 
@@ -163,5 +176,32 @@ func WithPath(in string, names []string, outs []string) Option {
 			Outwards: outPaths,
 			Names:    names,
 		})
+	}
+}
+
+// WithLayer set layer setting.
+//
+// Wait for list of arguments `layer name`, `proxy type`, `implementation type` and optional `path` to template.
+//
+// If list of parameters wrong - corrupting config flag.
+func WithLayer(in ...string) Option {
+	return func(cfg *Config) {
+		switch len(in) {
+		case 3:
+			cfg.Layers = append(cfg.Layers, Layer{
+				Name:           in[0],
+				Proxy:          in[1],
+				Implementation: in[2],
+			})
+		case 4:
+			cfg.Layers = append(cfg.Layers, Layer{
+				Name:           in[0],
+				Proxy:          in[1],
+				Implementation: in[2],
+				Path:           in[3],
+			})
+		default:
+			cfg.IsCorrupted = true
+		}
 	}
 }

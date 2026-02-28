@@ -6,6 +6,7 @@ import (
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
+// Pair contains main objects for read and generate files.
 type Pair struct {
 	parser  internal.ParserI
 	definer internal.DefinerI
@@ -13,9 +14,7 @@ type Pair struct {
 
 // Generator provides functionality for reading source files and generating proxies for them
 type Generator struct {
-	pairs   []Pair
-	parser  internal.ParserI
-	definer internal.DefinerI
+	pairs []Pair
 }
 
 // New builds new Generator.
@@ -38,8 +37,6 @@ func New(opts ...Option) *Generator {
 
 	log.Debugf("generator initialized")
 	return &Generator{
-		pairs:   pairs,
-		parser:  cfg.parser,
-		definer: cfg.definer,
+		pairs: pairs,
 	}
 }

@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	level = "INFO"
+	level = "INFO" // todo added mutex or atomic
 
 	flags = log.Ldate | log.Ltime | log.LUTC | log.Lshortfile
 
