@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -43,6 +42,10 @@ func (f *Function) Tags() *Tags {
 	return f.tags
 }
 
+func (f *Function) IsHaveTags(in ProxyType) bool {
+	return f.tags.IsHaveTags(in)
+}
+
 // IsHaveLoggerTag returns true if function contains logger tag.
 func (f *Function) IsHaveLoggerTag() bool {
 	return f.tags.IsHaveTags(ProxyTypeLogger)
@@ -55,7 +58,6 @@ func (f *Function) IsHaveTracerTag() bool {
 
 // IsHaveRetrierTag returns true if function contains retrier tag.
 func (f *Function) IsHaveRetrierTag() bool {
-	fmt.Printf("%s is retrier function\n", f.name)
 	return f.tags.IsHaveTags(ProxyTypeRetrier)
 }
 

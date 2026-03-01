@@ -23,3 +23,8 @@ go.work.sum
 
 # env file
 .env
+
+# temp for testing dir
+/tt
+
+.DS_Store

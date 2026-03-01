@@ -1,9 +1,5 @@
 package entity
 
-import (
-	"fmt"
-)
-
 // Layer describe selected layer to generate proxy.
 type Layer struct {
 	logger  bool
@@ -22,6 +18,8 @@ type Interface struct {
 }
 
 // NewInterface builds new Interface.
+// 
+// Deprecated
 func NewInterface(name string, fns []*Function) *Interface {
 	return &Interface{
 		name:      name,
@@ -44,9 +42,9 @@ func NewInterfaceV2(
 	)
 
 	for _, fn := range fns {
-		logger = logger || fn.IsHaveLoggerTag()
-		tracer = tracer || fn.IsHaveTracerTag()
-		retrier = retrier || fn.IsHaveRetrierTag()
+		logger = logger || fn.IsHaveTags(ProxyTypeLogger)
+		tracer = tracer || fn.IsHaveTags(ProxyTypeTracer)
+		retrier = retrier || fn.IsHaveTags(ProxyTypeRetrier)
 	}
 
 	out := Interface{
@@ -94,25 +92,6 @@ func (i *Interface) Prepare() {
 	}
 }
 
-// SetLayer select active layer to generate code.
-func (i *Interface) SetLayer(in ProxyType) {
-	switch in {
-	case ProxyTypeLogger:
-		i.layer.logger = true
-		i.layer.tracer = false
-		i.layer.retrier = false
-	case ProxyTypeTracer:
-		i.layer.logger = false
-		i.layer.tracer = true
-		i.layer.retrier = false
-	case ProxyTypeRetrier:
-		i.layer.logger = false
-		i.layer.tracer = false
-		i.layer.retrier = true
-	default:
-	}
-}
-
 // IsLogger return true if logger layer was sets.
 func (i *Interface) IsLogger() bool {
 	return i.layer.logger
@@ -125,6 +104,5 @@ func (i *Interface) IsTracer() bool {
 
 // IsRetrier return true if retrier layer was sets.
 func (i *Interface) IsRetrier() bool {
-	fmt.Printf("%s is retrier\n", i.name)
 	return i.layer.retrier
 }

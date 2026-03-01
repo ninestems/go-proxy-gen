@@ -5,6 +5,10 @@ import (
 )
 
 type options struct {
+	pairs []pair
+}
+
+type pair struct {
 	parser  internal.ParserI
 	definer internal.DefinerI
 }
@@ -12,16 +16,9 @@ type options struct {
 // Option describe function for applying config.
 type Option func(*options)
 
-// WithParser added parser in config.
-func WithParser(in internal.ParserI) Option {
+// WithPair saves parser and definer implementations for pair struct.
+func WithPair(in internal.ParserI, def internal.DefinerI) Option {
 	return func(o *options) {
-		o.parser = in
-	}
-}
-
-// WithDefiner added definer in config.
-func WithDefiner(in internal.DefinerI) Option {
-	return func(o *options) {
-		o.definer = in
+		o.pairs = append(o.pairs, pair{in, def})
 	}
 }

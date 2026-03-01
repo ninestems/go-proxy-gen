@@ -1,0 +1,35 @@
+# must be for backward compatibility
+version: "1"
+
+# describe types from cli for select correct builder
+x-proxy-type:
+  logger: &proxy-logger "logger"
+  tracer: &proxy-tracer "tracer"
+  retrier: &proxy-retrier "retrier"
+  custom: &proxy-custom "custom"
+
+# 
+x-proxy-implementation:
+  custom-implementation: &proxy-implementation-custom "custom"
+  zap-logger: &proxy-implementation-zap "zap"
+  opentelemetry-tracer: &proxy-implementation-opentelemetry "opentelemetry"
+  backoff-retrier: &proxy-implementation-backoff "backoff"
+
+# turn off/on debug level for logger
+debug: true
+
+# proxy allow to turn off/on generating proxy layer.
+proxy:
+  - name: logger
+    ptype: *proxy-logger
+    itype: *proxy-implementation-zap
+  - name: tracer
+    ptype: *proxy-tracer
+    itype: *proxy-implementation-opentelemetry
+  - name: retrier
+    ptype: *proxy-retrier
+    itype: *proxy-implementation-backoff
+  - name: debug_logger
+    ptype: *proxy-logger
+    itype: *proxy-implementation-custom
+    path: ./logger.tmpl

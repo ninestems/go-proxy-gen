@@ -13,6 +13,8 @@ type enables struct {
 type options struct {
 	// enables sets enable for generation layers
 	enables enables
+
+	templates []internal.TemplaterI
 	// lt logger templater.
 	lt internal.TemplaterI
 	// tt tracer templater.
@@ -47,10 +49,10 @@ func WithRetrierTemplater(in internal.TemplaterI) Option {
 	}
 }
 
-// WithCustomTemplater added custom templater.
-func WithCustomTemplater(in internal.TemplaterI) Option {
+// WithTemplater added custom templater.
+func WithTemplater(in internal.TemplaterI) Option {
 	return func(o *options) {
-		o.ct = in
+		o.templates = append(o.templates, in)
 	}
 }
 

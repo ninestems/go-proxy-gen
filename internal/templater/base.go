@@ -20,3 +20,4 @@ var (
 	//go:embed files/base/clear.tmpl
 	clearTemplate string
 )
+

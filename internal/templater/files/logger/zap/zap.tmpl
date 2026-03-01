@@ -20,6 +20,7 @@
 {{- end }}
 
 {{- define "logger-implementation-helpers"}}
+// zfield defined type of zap field to correct set in logs.
 func zfield(key string, value any) zap.Field {
     switch v := value.(type) {
     case string:
