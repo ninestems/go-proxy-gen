@@ -68,10 +68,6 @@ func Init(opts ...Option) (*Config, error) {
 	return &cfg, nil
 }
 
-func (cfg *Config) ApplyLocal(in *LocalConfig) {
-	cfg.App.Debug = in.Debug
-}
-
 func DefaultConfig() Config {
 	return Config{
 		App: App{
@@ -124,14 +120,14 @@ func WithAppBuildGoVersion(v string) Option {
 
 func WithLocalConfig(in string) Option {
 	return func(cfg *Config) {
-		if len(in) > 0 {
+		if len(in) == 0 {
 			return
 		}
 		cfg.App.LocalConfig = in
 	}
 }
 
-// WithAppBuildDebug
+// WithAppBuildDebug set flag to debug cli.
 func WithAppBuildDebug(v bool) Option {
 	return func(cfg *Config) {
 		cfg.App.Debug = v
@@ -176,6 +172,12 @@ func WithPath(in string, names []string, outs []string) Option {
 			Outwards: outPaths,
 			Names:    names,
 		})
+	}
+}
+
+func WithLayerReset() Option {
+	return func(cfg *Config) {
+		cfg.Layers = nil
 	}
 }
 

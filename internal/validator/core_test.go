@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 func Test_validatePackage(t *testing.T) {

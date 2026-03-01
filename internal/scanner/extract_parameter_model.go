@@ -1,7 +1,7 @@
 package scanner
 
 import (
-	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 type parameterSpecification struct {

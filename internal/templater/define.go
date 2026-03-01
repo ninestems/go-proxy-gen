@@ -3,47 +3,77 @@ package templater
 import (
 	"fmt"
 	"os"
+
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
-func define(proxy, implementation string) string {
-	switch proxy {
-	case "logger":
-		return logger(implementation)
-	case "tracer":
-		return tracer(implementation)
-	case "retrier":
-		return retrier(implementation)
+func define(l *Layer) (string, error) {
+	switch l.Proxy() {
+	case entity.ProxyTypeLogger:
+		return logger(l)
+	case entity.ProxyTypeTracer:
+		return tracer(l)
+	case entity.ProxyTypeRetrier:
+		return retrier(l)
+	case entity.ProxyTypeCustom:
+		panic("custom implementation not yet supported")
+	default:
+		return "", nil
 	}
-	return ""
 }
 
-func logger(implementation string) string {
+func logger(l *Layer) (string, error) {
 	var template = baseLogger + loggerTemplate + clearTemplate
 
-	switch implementation {
-	case "zap":
+	switch l.Implementation() {
+	case entity.ImplementationTypeZap:
 		template += loggerZapTemplate
+	case entity.ImplementationTypeCustom:
+		readed, err := read(l.Path())
+		if err != nil {
+			return "", fmt.Errorf("read: %w", err)
+		}
+
+		template += readed
 	}
 
-	return template
+	return template, nil
 }
 
-func tracer(implementation string) string {
-	switch implementation {
-	case "opentelemetry":
-		return baseTracer + tracerTemplate + clearTemplate + tracerOpenTelemetryTemplate
-	default:
-		return ""
+func tracer(l *Layer) (string, error) {
+	var template = baseTracer + tracerTemplate + clearTemplate
+
+	switch l.Implementation() {
+	case entity.ImplementationTypeOpenTelemetry:
+		template += tracerOpenTelemetryTemplate
+	case entity.ImplementationTypeCustom:
+		readed, err := read(l.Path())
+		if err != nil {
+			return "", fmt.Errorf("read: %w", err)
+		}
+
+		template += readed
 	}
+
+	return template, nil
 }
 
-func retrier(implementation string) string {
-	switch implementation {
-	case "backoff":
-		return baseRetrier + retrierTemplate + clearTemplate + retrierBackoffTemplate
-	default:
-		return ""
+func retrier(l *Layer) (string, error) {
+	var template = baseRetrier + retrierTemplate + clearTemplate
+
+	switch l.Implementation() {
+	case entity.ImplementationTypeBackoff:
+		template += retrierBackoffTemplate
+	case entity.ImplementationTypeCustom:
+		readed, err := read(l.Path())
+		if err != nil {
+			return "", fmt.Errorf("read: %w", err)
+		}
+
+		template += readed
 	}
+
+	return template, nil
 }
 
 func read(path string) (string, error) {

@@ -3,7 +3,7 @@ package validator
 import (
 	"fmt"
 
-	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 // validatePackage validates package info.
@@ -216,6 +216,9 @@ func validateOutputIOTag(in *entity.OutputIO) error {
 }
 
 func validateRetryTags(in *entity.Retry) error {
+	if in == nil {
+		return nil
+	}
 	return validateRetryTag(in)
 }
 

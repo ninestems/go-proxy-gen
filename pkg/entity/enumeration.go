@@ -1,5 +1,9 @@
 package entity
 
+import (
+	"strings"
+)
+
 // ParameterType describe types for parameters of function.
 type ParameterType uint32
 
@@ -28,6 +32,8 @@ type TagType uint32
 const (
 	// TagTypeUndefined undefined.
 	TagTypeUndefined TagType = iota
+	// TagTypeCustom tag for user custom definition templates.
+	TagTypeCustom
 	// TagTypeContext context type tag.
 	TagTypeContext
 	// TagTypeInput tag for input setting.
@@ -49,6 +55,8 @@ func (p TagType) String() string {
 		return "out"
 	case TagTypeRetry:
 		return "retry"
+	case TagTypeCustom:
+		return "custom"
 	default:
 		return "undefined"
 	}
@@ -60,6 +68,8 @@ type ProxyType uint32
 const (
 	// ProxyTypeUndefined for undefined type.
 	ProxyTypeUndefined ProxyType = iota
+	// ProxyTypeCustom for user type of proxy template.
+	ProxyTypeCustom
 	// ProxyTypeLogger for logger.
 	ProxyTypeLogger
 	// ProxyTypeTracer for tracer.
@@ -68,17 +78,87 @@ const (
 	ProxyTypeRetrier
 )
 
+// NewProxyType creates a ProxyType from a string representation.
+// Returns ProxyTypeUndefined if the string doesn't match any known type.
+// The input is case-insensitive and leading/trailing spaces are trimmed.
+func NewProxyType(in string) ProxyType {
+	// Clean the input: trim spaces and convert to lowercase
+	cleaned := strings.TrimSpace(strings.ToLower(in))
+
+	switch cleaned {
+	case "custom":
+		return ProxyTypeCustom
+	case "logger":
+		return ProxyTypeLogger
+	case "tracer":
+		return ProxyTypeTracer
+	case "retrier":
+		return ProxyTypeRetrier
+	default:
+		return ProxyTypeUndefined
+	}
+}
+
 // String implements stringer for ProxyType.
 func (p ProxyType) String() string {
 	switch p {
 	case ProxyTypeUndefined:
 		return "undefined"
+	case ProxyTypeCustom:
+		return "custom"
 	case ProxyTypeLogger:
 		return "logger"
 	case ProxyTypeTracer:
 		return "tracer"
 	case ProxyTypeRetrier:
 		return "retrier"
+	default:
+		return "undefined"
+	}
+}
+
+type ImplementationType uint32
+
+const (
+	ImplementationTypeUndefined ImplementationType = iota
+	ImplementationTypeCustom
+	ImplementationTypeZap
+	ImplementationTypeOpenTelemetry
+	ImplementationTypeBackoff
+)
+
+// NewImplementationType creates an ImplementationType from a string representation.
+// Returns ImplementationTypeUndefined if the string doesn't match any known type.
+// The input is case-insensitive and leading/trailing spaces are trimmed.
+func NewImplementationType(in string) ImplementationType {
+	cleaned := strings.TrimSpace(strings.ToLower(in))
+
+	switch cleaned {
+	case "custom":
+		return ImplementationTypeCustom
+	case "zap":
+		return ImplementationTypeZap
+	case "opentelemetry", "otel": // добавляем короткий вариант для удобства
+		return ImplementationTypeOpenTelemetry
+	case "backoff":
+		return ImplementationTypeBackoff
+	default:
+		return ImplementationTypeUndefined
+	}
+}
+
+func (p ImplementationType) String() string {
+	switch p {
+	case ImplementationTypeUndefined:
+		return "undefined"
+	case ImplementationTypeCustom:
+		return "custom"
+	case ImplementationTypeZap:
+		return "zap"
+	case ImplementationTypeOpenTelemetry:
+		return "opentelemetry"
+	case ImplementationTypeBackoff:
+		return "backoff"
 	default:
 		return "undefined"
 	}

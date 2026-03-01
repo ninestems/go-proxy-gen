@@ -1,21 +1,21 @@
-# must be for backward compatibility
+# must be for backward compatibility.
 version: "1"
 
-# describe types from cli for select correct builder
+# description types from cli for select correct builder, don't change it.
 x-proxy-type:
+  custom: &proxy-custom "custom" # if using cli waiting full custom template.
   logger: &proxy-logger "logger"
   tracer: &proxy-tracer "tracer"
   retrier: &proxy-retrier "retrier"
-  custom: &proxy-custom "custom"
 
-# 
+# description implementation types, don't change it.
 x-proxy-implementation:
-  custom-implementation: &proxy-implementation-custom "custom"
+  custom-implementation: &proxy-implementation-custom "custom" # using this cli, a custom template is expected, and its size must be within the limits of the preset.
   zap-logger: &proxy-implementation-zap "zap"
   opentelemetry-tracer: &proxy-implementation-opentelemetry "opentelemetry"
   backoff-retrier: &proxy-implementation-backoff "backoff"
 
-# turn off/on debug level for logger
+# turn off/on debug level for logger of cli.
 debug: true
 
 # proxy allow to turn off/on generating proxy layer.
