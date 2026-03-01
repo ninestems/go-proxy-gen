@@ -14,10 +14,14 @@ type LocalConfig struct {
 }
 
 func (cfg *LocalConfig) Options() []Option {
-	opts := make([]Option, 0, len(cfg.Proxy)+2)
+	opts := make([]Option, 0, len(cfg.Proxy)+3)
 
 	opts = append(opts, WithConfigVersion(cfg.Version))
 	opts = append(opts, WithAppBuildDebug(cfg.Debug))
+
+	if len(cfg.Proxy) > 0 {
+		opts = append(opts, WithLayerReset())
+	}
 
 	for _, layer := range cfg.Proxy {
 		opts = append(opts, layer.Option())
@@ -37,8 +41,8 @@ type LayerDescription struct {
 func (l *LayerDescription) Option() Option {
 	args := make([]string, 0, 4)
 	args = append(args, l.Name)
+	args = append(args, l.PType)
 	args = append(args, l.IType)
-	args = append(args, l.Path)
 
 	if len(l.Path) > 0 {
 		args = append(args, l.Path)

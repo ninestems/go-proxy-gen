@@ -3,7 +3,7 @@ DATE=$(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 
 
 test:
-	go test -race -coverprofile=coverage.out ./internal/... ./entity/... ./pkg/...
+	go test -race -coverprofile=coverage.out ./internal/... ./pkg/...
 
 coverage:
 	go tool cover -func=coverage.out | grep total

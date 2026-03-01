@@ -3,7 +3,7 @@ package validator
 import (
 	"fmt"
 
-	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 // Validate checks a list of interfaces for tag format, structural issues,

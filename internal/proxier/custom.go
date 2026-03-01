@@ -1,5 +1,15 @@
 package proxier
 
+import "text/template"
+
+var funcMap = template.FuncMap{
+	"sub":  func(a, b int) int { return a - b },
+	"ge":   func(a, b int) bool { return a >= b },
+	"not":  func(b bool) bool { return !b },
+	"dict": dict,
+	"list": func(vals ...interface{}) []interface{} { return vals },
+}
+
 func dict(values ...interface{}) map[string]interface{} {
 	m := make(map[string]interface{}, len(values)/2)
 	if len(values)%2 != 0 {

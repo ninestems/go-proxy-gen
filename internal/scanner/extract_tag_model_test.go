@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 func Test_tagContextSpecification_Build(t *testing.T) {

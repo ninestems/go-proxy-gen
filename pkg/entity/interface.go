@@ -18,7 +18,7 @@ type Interface struct {
 }
 
 // NewInterface builds new Interface.
-// 
+//
 // Deprecated
 func NewInterface(name string, fns []*Function) *Interface {
 	return &Interface{

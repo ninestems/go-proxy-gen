@@ -1,7 +1,7 @@
 package definer
 
 import (
-	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 // Define receives a list of interfaces and output path,

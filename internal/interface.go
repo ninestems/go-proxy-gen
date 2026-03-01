@@ -2,7 +2,7 @@
 package internal
 
 import (
-	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 // ParserI defines interface for parsing Go packages
@@ -58,9 +58,9 @@ type TemplaterI interface {
 	// Name return name of layer from template.
 	Name() string
 	// Proxy return type of proxy layer of template.
-	Proxy() string
+	Proxy() entity.ProxyType
 	// Implementation return type of implementation of template.
-	Implementation() string
+	Implementation() entity.ImplementationType
 	// Template returns template for logger.
 	Template() string
 }

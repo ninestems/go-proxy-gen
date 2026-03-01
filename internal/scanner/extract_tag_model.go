@@ -3,7 +3,7 @@ package scanner
 import (
 	"time"
 
-	"github.com/ninestems/go-proxy-gen/entity"
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 type tagSpecification struct {

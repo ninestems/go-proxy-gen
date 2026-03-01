@@ -7,7 +7,7 @@ import (
 	"github.com/ninestems/go-proxy-gen/pkg/log"
 )
 
-// Prepare recreate folder to proxy.s
+// Prepare recreate folder to proxy.
 func (e *Emitter) Prepare() error {
 	for _, path := range e.paths {
 		entries, err := os.ReadDir(path)

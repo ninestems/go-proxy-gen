@@ -42,6 +42,7 @@ func (f *Function) Tags() *Tags {
 	return f.tags
 }
 
+// IsHaveTags checks function for having proxy tag.
 func (f *Function) IsHaveTags(in ProxyType) bool {
 	return f.tags.IsHaveTags(in)
 }

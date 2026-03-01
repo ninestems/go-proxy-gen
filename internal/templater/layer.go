@@ -2,12 +2,14 @@ package templater
 
 import (
 	"fmt"
+
+	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
 type Layer struct {
 	name           string
-	proxy          string
-	implementation string
+	proxy          entity.ProxyType
+	implementation entity.ImplementationType
 	path           string
 	source         string
 }
@@ -20,8 +22,8 @@ func NewLayer(
 ) *Layer {
 	return &Layer{
 		name:           name,
-		proxy:          proxy,
-		implementation: implementation,
+		proxy:          entity.NewProxyType(proxy),
+		implementation: entity.NewImplementationType(implementation),
 		path:           path,
 	}
 }
@@ -30,12 +32,16 @@ func (l *Layer) Name() string {
 	return l.name
 }
 
-func (l *Layer) Proxy() string {
+func (l *Layer) Proxy() entity.ProxyType {
 	return l.proxy
 }
 
-func (l *Layer) Implementation() string {
+func (l *Layer) Implementation() entity.ImplementationType {
 	return l.implementation
+}
+
+func (l *Layer) Path() string {
+	return l.path
 }
 
 // Template returns source for logger.
@@ -45,15 +51,8 @@ func (l *Layer) Template() string {
 
 // Init define template value of read it from disk.
 func (l *Layer) Init() error {
-	if len(l.path) == 0 {
-		l.source = define(l.proxy, l.implementation)
-		return nil
-	}
-
 	var err error
-
-	l.source, err = read(l.path)
-
+	l.source, err = define(l)
 	if err != nil {
 		return fmt.Errorf("read: %w", err)
 	}
