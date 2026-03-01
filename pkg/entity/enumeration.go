@@ -36,6 +36,8 @@ const (
 	TagTypeOutput
 	// TagTypeRetry tag for retry setting.
 	TagTypeRetry
+	// TagTypeCustom tag for user custom definition templates.
+	TagTypeCustom
 )
 
 // String implements stringer for TagType.
@@ -49,6 +51,8 @@ func (p TagType) String() string {
 		return "out"
 	case TagTypeRetry:
 		return "retry"
+	case TagTypeCustom:
+		return "custom"
 	default:
 		return "undefined"
 	}
@@ -66,6 +70,8 @@ const (
 	ProxyTypeTracer
 	// ProxyTypeRetrier for retrier.
 	ProxyTypeRetrier
+	// ProxyTypeCustom for user type of proxy template.
+	ProxyTypeCustom
 )
 
 // String implements stringer for ProxyType.
