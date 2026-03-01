@@ -23,7 +23,6 @@ func NewLayer(
 		proxy:          proxy,
 		implementation: implementation,
 		path:           path,
-		//source:         define(proxy, implementation),
 	}
 }
 
