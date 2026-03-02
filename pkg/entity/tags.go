@@ -12,6 +12,7 @@ type ownership struct {
 	logger  bool
 	tracer  bool
 	retrier bool
+	custom  bool
 }
 
 // Tags describe all list of tags.
@@ -21,6 +22,7 @@ type Tags struct {
 	input   []*InputIO
 	output  []*OutputIO
 	retry   *Retry
+	custom  []any
 }
 
 // setOwnership set mark to true, if tag is correct type.
@@ -152,7 +154,7 @@ func (t *Tags) OutputTracer() []*OutputIO {
 	return out
 }
 
-// Retry returns list of retry tags.
+// Retry returns retry tag.
 func (t *Tags) Retry() *Retry {
 	return t.retry
 }
@@ -160,6 +162,8 @@ func (t *Tags) Retry() *Retry {
 // IsHaveTags return true if have one or more tag of input type.
 func (t *Tags) IsHaveTags(in ProxyType) bool {
 	switch in {
+	case ProxyTypeCustom:
+		panic("custom proxy type not supported")
 	case ProxyTypeLogger:
 		return t.logger
 	case ProxyTypeTracer:

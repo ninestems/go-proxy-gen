@@ -49,12 +49,12 @@ func attr(key string, value any) attribute.KeyValue {
 {{- define "tracer-implementation-body"}}
 {{- $ifacename := .IfaceName }}{{- $function := .Function }}{{ (index $function.Input 0).Name }}, span := p.trace.Start({{ (index $function.Input 0).Name }}, "{{ $function.Name }}() started")
     defer span.End()
-    {{- if or (len $function.TraceContextTags) (len $function.TraceInputTags) }}
+    {{- if or (len ($function.ContextTags "tracer")) (len ($function.InputTags "tracer")) }}
     span.SetAttributes(
-    {{- range $i, $tag := $function.TraceContextTags }}
+    {{- range $i, $tag := $function.ContextTags "tracer" }}
         attr("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
     {{- end }}
-    {{- range $i, $tag := $function.TraceInputTags }}
+    {{- range $i, $tag := $function.InputTags "tracer" }}
         attr("{{ $tag.Alias}}", {{ $tag.Call }}),
     {{- end }}
     )
@@ -77,9 +77,9 @@ func attr(key string, value any) attribute.KeyValue {
         span.RecordError({{ (index $function.Output (sub (len $function.Output) 1)).Name }})
         span.SetStatus(codes.Error, {{ (index $function.Output (sub (len $function.Output) 1)).Name }}.Error())
     } else {
-    {{- if (len $function.TraceOutputTags) }}
+    {{- if (len ($function.OutputTags "tracer")) }}
         span.SetAttributes(
-        {{- range $i, $tag := $function.TraceOutputTags }}
+        {{- range $i, $tag := $function.OutputTags "tracer"}}
             attr("{{ $tag.Alias}}", {{ $tag.Call }}),
         {{- end }}
         )
@@ -87,9 +87,9 @@ func attr(key string, value any) attribute.KeyValue {
         span.SetStatus(codes.Ok, "{{ $function.Name }}() ends with success")
     }
     {{- else if (ge (len $function.Output) 1)}}
-        {{- if (len $function.TraceOutputTags) }}
+        {{- if (len ($function.OutputTags "tracer")) }}
             span.SetAttributes(
-            {{- range $i, $tag := $function.TraceOutputTags }}
+            {{- range $i, $tag := $function.OutputTags "tracer" }}
                 attr("{{ $tag.Alias}}", {{ $tag.Call }}),
             {{- end }}
             )

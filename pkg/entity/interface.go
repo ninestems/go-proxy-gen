@@ -92,6 +92,22 @@ func (i *Interface) Prepare() {
 	}
 }
 
+// Layer function need for template compile.
+//
+// Calls for select way to generate clear template for proxy layer.
+func (i *Interface) Layer(in string) bool {
+	switch NewProxyType(in) {
+	case ProxyTypeLogger:
+		return i.layer.logger
+	case ProxyTypeTracer:
+		return i.layer.tracer
+	case ProxyTypeRetrier:
+		return i.layer.retrier
+	default:
+		return false
+	}
+}
+
 // IsLogger return true if logger layer was sets.
 func (i *Interface) IsLogger() bool {
 	return i.layer.logger

@@ -11,6 +11,7 @@ type tagSpecification struct {
 	input   []*tagInputSpecification
 	output  []*tagOutputSpecification
 	retry   []*tagRetrySpecification
+	custom  []any
 }
 
 func (s *tagSpecification) Build() *entity.Tags {

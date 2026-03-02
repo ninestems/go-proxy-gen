@@ -47,6 +47,13 @@ func (f *Function) IsHaveTags(in ProxyType) bool {
 	return f.tags.IsHaveTags(in)
 }
 
+// Layer function need for template compile.
+//
+// Calls for select way to generate clear template for proxy layer.
+func (f *Function) Layer(in string) bool {
+	return f.tags.IsHaveTags(NewProxyType(in))
+}
+
 // IsHaveLoggerTag returns true if function contains logger tag.
 func (f *Function) IsHaveLoggerTag() bool {
 	return f.tags.IsHaveTags(ProxyTypeLogger)
@@ -62,34 +69,57 @@ func (f *Function) IsHaveRetrierTag() bool {
 	return f.tags.IsHaveTags(ProxyTypeRetrier)
 }
 
+// ContextTags function need for template compile.
+//
+// Return context tags for select proxy type.
+func (f *Function) ContextTags(in string) []*ContextIO {
+	switch NewProxyType(in) {
+	case ProxyTypeLogger:
+		return f.tags.ContextLogger()
+	case ProxyTypeTracer:
+		return f.tags.ContextTracer()
+	case ProxyTypeCustom:
+		panic("custom proxy type not supported")
+	default:
+		return nil
+	}
+}
+
 // LogContextTags returns context tag for logger.
-func (f *Function) LogContextTags() []*ContextIO {
-	return f.tags.ContextLogger()
+//func (f *Function) LogContextTags() []*ContextIO {
+//	return f.tags.ContextLogger()
+//}
+
+// InputTags function need for template compile.
+//
+// Return input tags for select proxy type.
+func (f *Function) InputTags(in string) []*InputIO {
+	switch NewProxyType(in) {
+	case ProxyTypeLogger:
+		return f.tags.InputLogger()
+	case ProxyTypeTracer:
+		return f.tags.InputTracer()
+	case ProxyTypeCustom:
+		panic("custom proxy type not supported")
+	default:
+		return nil
+	}
 }
 
-// LogInputTags returns input tag for logger.
-func (f *Function) LogInputTags() []*InputIO {
-	return f.tags.InputLogger()
-}
-
-// LogOutputTags returns output tag for logger.
-func (f *Function) LogOutputTags() []*OutputIO {
-	return f.tags.OutputLogger()
-}
-
-// TraceContextTags returns context tag for tracer.
-func (f *Function) TraceContextTags() []*ContextIO {
-	return f.tags.ContextTracer()
-}
-
-// TraceInputTags returns input tag for tracer.
-func (f *Function) TraceInputTags() []*InputIO {
-	return f.tags.InputTracer()
-}
-
-// TraceOutputTags returns output tag for tracer.
-func (f *Function) TraceOutputTags() []*OutputIO {
-	return f.tags.OutputTracer()
+// OutputTags function need for template compile.
+//
+// Return output tags for select proxy type.
+func (f *Function) OutputTags(in string) []*OutputIO {
+	switch NewProxyType(in) {
+	case ProxyTypeLogger:
+		return f.tags.OutputLogger()
+	case ProxyTypeTracer:
+		return f.tags.OutputTracer()
+	case ProxyTypeCustom:
+		panic("custom proxy type not supported")
+	default:
+		return nil
+	}
 }
 
 // RetryTag returns all retry tags.

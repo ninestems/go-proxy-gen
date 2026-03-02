@@ -60,3 +60,7 @@ func (c *CommonTag) IsForTracer() bool {
 func (c *CommonTag) IsForRetrier() bool {
 	return c.ptype == ProxyTypeRetrier
 }
+
+func (c *CommonTag) IsForCustom() bool {
+	return c.ptype == ProxyTypeCustom
+}

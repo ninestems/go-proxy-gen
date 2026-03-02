@@ -61,10 +61,10 @@ func zfield(key string, value any) zap.Field {
 {{- define "logger-implementation-body"}}
 {{- $ifacename := .IfaceName }} {{- $function := .Function }}   p.log.Info(
         "{{ $function.Name }}() started",
-    {{- range $i, $tag := $function.LogContextTags }}
+    {{- range $i, $tag := $function.ContextTags "logger" }}
         zap.Any("{{ $tag.Alias}}", {{ $tag.Name }}.Value("{{ $tag.Key }}")),
     {{- end }}
-    {{- range $i, $tag := $function.LogInputTags }}
+    {{- range $i, $tag := $function.InputTags "logger" }}
         zfield("{{ $tag.Alias }}", {{ $tag.Call }}),
     {{- end }}
     )
@@ -90,7 +90,7 @@ func zfield(key string, value any) zap.Field {
     } else {
         p.log.Info(
             "{{ $function.Name }}() ends with success",
-        {{- range $i, $tag := $function.LogOutputTags }}
+        {{- range $i, $tag := $function.OutputTags "logger" }}
             zfield("{{ $tag.Alias}}", {{ $tag.Call }}),
         {{- end }}
         )
@@ -98,7 +98,7 @@ func zfield(key string, value any) zap.Field {
     {{- else if (ge (len $function.Output) 1)}}
     p.log.Info(
     "{{ $function.Name }}() ends with success",
-    {{- range $i, $tag := $function.LogOutputTags }}
+    {{- range $i, $tag := $function.OutputTags "logger" }}
         zfield("{{ $tag.Alias}}", {{ $tag.Call }}),
     {{- end }}
     )

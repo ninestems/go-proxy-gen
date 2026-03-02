@@ -27,7 +27,7 @@ func New{{ $ifacename }}ProxyTracer(
 {{- range .Functions }}
 {{- $function := . }}
 
-{{- if $function.IsHaveTracerTag }}{{ template "tracer-function" (dict "IfaceName" $ifacename "Function" $function)}}
+{{- if $function.Layer "tracer" }}{{ template "tracer-function" (dict "IfaceName" $ifacename "Function" $function)}}
 {{- else }} {{ template "clear-function" (dict "IfaceName" $ifacename "Function" $function "Type" "Tracer")}}
 {{- end }}
 

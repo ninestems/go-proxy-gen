@@ -47,16 +47,16 @@ const (
 // String implements stringer for TagType.
 func (p TagType) String() string {
 	switch p {
+	case TagTypeCustom:
+		return "custom"
+	case TagTypeRetry:
+		return "retry"
 	case TagTypeContext:
 		return "ctx"
 	case TagTypeInput:
 		return "in"
 	case TagTypeOutput:
 		return "out"
-	case TagTypeRetry:
-		return "retry"
-	case TagTypeCustom:
-		return "custom"
 	default:
 		return "undefined"
 	}

@@ -23,7 +23,7 @@ func New{{ $ifacename }}ProxyRetrier(
 {{- range .Functions }}
 {{- $function := . }}
 
-{{- if $function.IsHaveRetrierTag }}{{template "retrier-function" (dict "IfaceName" $ifacename "Function" $function)}}
+{{- if $function.Layer "retrier" }}{{template "retrier-function" (dict "IfaceName" $ifacename "Function" $function)}}
 {{- else }} {{template "clear-function" (dict "IfaceName" $ifacename "Function" $function "Type" "Retrier")}}
 {{- end }}
 
