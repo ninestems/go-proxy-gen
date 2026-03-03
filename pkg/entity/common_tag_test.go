@@ -95,9 +95,9 @@ func TestCommon(t *testing.T) {
 			require.Equal(t, tt.args.ptype, obj.PType())
 			require.Equal(t, tt.args.vtype, obj.VType())
 
-			require.Equal(t, tt.result.isLogger, obj.IsForLogger())
-			require.Equal(t, tt.result.isTracer, obj.IsForTracer())
-			require.Equal(t, tt.result.isRetrier, obj.IsForRetrier())
+			require.Equal(t, tt.result.isLogger, obj.IsForProxy(ProxyTypeLogger))
+			require.Equal(t, tt.result.isTracer,  obj.IsForProxy(ProxyTypeTracer))
+			require.Equal(t, tt.result.isRetrier,  obj.IsForProxy(ProxyTypeRetrier))
 		})
 	}
 }

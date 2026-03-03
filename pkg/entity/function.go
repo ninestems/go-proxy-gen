@@ -54,77 +54,34 @@ func (f *Function) Layer(in string) bool {
 	return f.tags.IsHaveTags(NewProxyType(in))
 }
 
-// IsHaveLoggerTag returns true if function contains logger tag.
-func (f *Function) IsHaveLoggerTag() bool {
-	return f.tags.IsHaveTags(ProxyTypeLogger)
-}
-
-// IsHaveTracerTag returns true if function contains tracer tag.
-func (f *Function) IsHaveTracerTag() bool {
-	return f.tags.IsHaveTags(ProxyTypeTracer)
-}
-
-// IsHaveRetrierTag returns true if function contains retrier tag.
-func (f *Function) IsHaveRetrierTag() bool {
-	return f.tags.IsHaveTags(ProxyTypeRetrier)
-}
-
 // ContextTags function need for template compile.
 //
 // Return context tags for select proxy type.
 func (f *Function) ContextTags(in string) []*ContextIO {
-	switch NewProxyType(in) {
-	case ProxyTypeLogger:
-		return f.tags.ContextLogger()
-	case ProxyTypeTracer:
-		return f.tags.ContextTracer()
-	case ProxyTypeCustom:
-		panic("custom proxy type not supported")
-	default:
-		return nil
-	}
+	return f.tags.Context(NewProxyType(in))
 }
-
-// LogContextTags returns context tag for logger.
-//func (f *Function) LogContextTags() []*ContextIO {
-//	return f.tags.ContextLogger()
-//}
 
 // InputTags function need for template compile.
 //
 // Return input tags for select proxy type.
 func (f *Function) InputTags(in string) []*InputIO {
-	switch NewProxyType(in) {
-	case ProxyTypeLogger:
-		return f.tags.InputLogger()
-	case ProxyTypeTracer:
-		return f.tags.InputTracer()
-	case ProxyTypeCustom:
-		panic("custom proxy type not supported")
-	default:
-		return nil
-	}
+	return f.tags.Input(NewProxyType(in))
 }
 
 // OutputTags function need for template compile.
 //
 // Return output tags for select proxy type.
 func (f *Function) OutputTags(in string) []*OutputIO {
-	switch NewProxyType(in) {
-	case ProxyTypeLogger:
-		return f.tags.OutputLogger()
-	case ProxyTypeTracer:
-		return f.tags.OutputTracer()
-	case ProxyTypeCustom:
-		panic("custom proxy type not supported")
-	default:
-		return nil
-	}
+	return f.tags.Output(NewProxyType(in))
 }
 
 // RetryTag returns all retry tags.
 func (f *Function) RetryTag() *Retry {
 	return f.tags.Retry()
+}
+
+func (f *Function) CustomTags(in string) []any {
+	panic("implement me")
 }
 
 // Prepare generate parameter names and make link between parameters and tags.

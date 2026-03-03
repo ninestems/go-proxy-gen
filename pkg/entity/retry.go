@@ -29,37 +29,27 @@ func NewRetryTag(
 	}
 }
 
-// IsForLogger always return false.
-func (r Retry) IsForLogger() bool {
-	return false
+func (r *Retry) IsForProxy(in ProxyType) bool {
+	return r.ptype == in
 }
 
-// IsForTracer always return false.
-func (r Retry) IsForTracer() bool {
-	return false
-}
-
-// IsForRetrier always return false.
-func (r Retry) IsForRetrier() bool {
-	return true
-}
 
 // Start return time.Duration as int64 in nanoseconds.
-func (r Retry) Start() int64 {
+func (r *Retry) Start() int64 {
 	return r.start.Nanoseconds()
 }
 
 // End return time.Duration as int64 in nanoseconds.
-func (r Retry) End() int64 {
+func (r *Retry) End() int64 {
 	return r.end.Nanoseconds()
 }
 
 // Multiplier return value to multiply.
-func (r Retry) Multiplier() float32 {
+func (r *Retry) Multiplier() float32 {
 	return r.multiplier
 }
 
 // Attempts return value of attempts.
-func (r Retry) Attempts() uint64 {
+func (r *Retry) Attempts() uint64 {
 	return r.attempts
 }

@@ -201,13 +201,13 @@ func TestFunction_LinkParameters(t *testing.T) {
 				tags:   tt.fields.tags,
 			}
 			f.Prepare()
-			for _, tag := range f.LogContextTags() {
+			for _, tag := range f.ContextTags("logger") {
 				require.True(t, !tag.IsEmptyParameter())
 			}
-			for _, tag := range f.LogInputTags() {
+			for _, tag := range f.InputTags("logger") {
 				require.True(t, !tag.IsEmptyParameter())
 			}
-			for _, tag := range f.LogOutputTags() {
+			for _, tag := range f.OutputTags("logger") {
 				require.True(t, !tag.IsEmptyParameter())
 			}
 		})

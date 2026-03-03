@@ -6,15 +6,6 @@ import (
 	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
-// validatePackage validates package info.
-func validatePackage(in *entity.Package) error {
-	if in.Name() == "" {
-		return entity.ErrEmptyPackageName
-	}
-
-	return nil
-}
-
 // validateInterface validate interface info.
 func validateInterface(in *entity.Interface) error {
 	if in.Name() == "" {

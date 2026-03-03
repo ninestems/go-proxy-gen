@@ -2,9 +2,7 @@ package entity
 
 // OwnershipInput описывает входной объект
 type ownershipper interface {
-	IsForLogger() bool
-	IsForTracer() bool
-	IsForRetrier() bool
+	IsForProxy(ProxyType) bool
 }
 
 // ownership collect mark of having types of tag.
@@ -28,12 +26,14 @@ type Tags struct {
 // setOwnership set mark to true, if tag is correct type.
 func (t *Tags) setOwnership(in ownershipper) {
 	switch {
-	case in.IsForLogger():
+	case in.IsForProxy(ProxyTypeLogger):
 		t.logger = true
-	case in.IsForTracer():
+	case in.IsForProxy(ProxyTypeTracer):
 		t.tracer = true
-	case in.IsForRetrier():
+	case in.IsForProxy(ProxyTypeRetrier):
 		t.retrier = true
+	case in.IsForProxy(ProxyTypeCustom):
+		panic("custom proxy type is not supported")
 	}
 }
 
@@ -68,89 +68,59 @@ func (t *Tags) AddRetry(in *Retry) {
 }
 
 // Context returns list of context tag/
-func (t *Tags) Context() []*ContextIO {
-	return t.context
-}
-
-// ContextLogger returns list of tag for context logger.
-func (t *Tags) ContextLogger() []*ContextIO {
-	out := make([]*ContextIO, 0, len(t.context))
-	for _, tag := range t.context {
-		if !tag.IsForLogger() {
-			continue
-		}
-		out = append(out, tag)
+func (t *Tags) Context(ins ...ProxyType) []*ContextIO {
+	if len(ins) == 0 {
+		return t.context
 	}
-	return out
-}
 
-// ContextTracer returns list of tag for context tracer.
-func (t *Tags) ContextTracer() []*ContextIO {
+	typ := ins[0]
+
 	out := make([]*ContextIO, 0, len(t.context))
+
 	for _, tag := range t.context {
-		if !tag.IsForTracer() {
-			continue
+		if tag.IsForProxy(typ) {
+			out = append(out, tag)
 		}
-		out = append(out, tag)
 	}
+
 	return out
 }
 
 // Input returns full list of input tags.
-func (t *Tags) Input() []*InputIO {
-	return t.input
-}
-
-// InputLogger returns list of input tags for logger.
-func (t *Tags) InputLogger() []*InputIO {
-	out := make([]*InputIO, 0, len(t.input))
-	for _, tag := range t.input {
-		if !tag.IsForLogger() {
-			continue
-		}
-		out = append(out, tag)
+func (t *Tags) Input(ins ...ProxyType) []*InputIO {
+	if len(ins) == 0 {
+		return t.input
 	}
-	return out
-}
 
-// InputTracer returns list of input tags for tracer.
-func (t *Tags) InputTracer() []*InputIO {
+	typ := ins[0]
+
 	out := make([]*InputIO, 0, len(t.input))
+
 	for _, tag := range t.input {
-		if !tag.IsForTracer() {
-			continue
+		if tag.IsForProxy(typ) {
+			out = append(out, tag)
 		}
-		out = append(out, tag)
 	}
+
 	return out
 }
 
 // Output returns full list of output tags.
-func (t *Tags) Output() []*OutputIO {
-	return t.output
-}
-
-// OutputLogger returns list of output tags for logger.
-func (t *Tags) OutputLogger() []*OutputIO {
-	out := make([]*OutputIO, 0, len(t.output))
-	for _, tag := range t.output {
-		if !tag.IsForLogger() {
-			continue
-		}
-		out = append(out, tag)
+func (t *Tags) Output(ins ...ProxyType) []*OutputIO {
+	if len(ins) == 0 {
+		return t.output
 	}
-	return out
-}
 
-// OutputTracer returns list of output tags for tracer.
-func (t *Tags) OutputTracer() []*OutputIO {
+	typ := ins[0]
+
 	out := make([]*OutputIO, 0, len(t.output))
+
 	for _, tag := range t.output {
-		if !tag.IsForTracer() {
-			continue
+		if tag.IsForProxy(typ) {
+			out = append(out, tag)
 		}
-		out = append(out, tag)
 	}
+
 	return out
 }
 

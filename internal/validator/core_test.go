@@ -8,47 +8,6 @@ import (
 	"github.com/ninestems/go-proxy-gen/pkg/entity"
 )
 
-func Test_validatePackage(t *testing.T) {
-	type args struct {
-		in *entity.Package
-	}
-	tests := []struct {
-		name string
-		args args
-		err  error
-	}{
-		{
-			name: "got error",
-			args: args{
-				in: entity.NewPackage(
-					"",
-					"",
-					nil,
-					nil,
-				),
-			},
-			err: entity.ErrEmptyPackageName,
-		},
-		{
-			name: "no error",
-			args: args{
-				in: entity.NewPackage(
-					"some name",
-					"",
-					nil,
-					nil,
-				),
-			},
-			err: nil,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			require.ErrorIs(t, validatePackage(tt.args.in), tt.err)
-		})
-	}
-}
-
 func Test_validateInterface(t *testing.T) {
 	type args struct {
 		in *entity.Interface

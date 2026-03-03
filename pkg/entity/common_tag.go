@@ -46,21 +46,6 @@ func (c *CommonTag) IsStructType() bool {
 	return c.vtype == ValueTypeStruct
 }
 
-// IsForLogger returns true if tag for logger setting.
-func (c *CommonTag) IsForLogger() bool {
-	return c.ptype == ProxyTypeLogger
-}
-
-// IsForTracer returns true if tag for tracer setting.
-func (c *CommonTag) IsForTracer() bool {
-	return c.ptype == ProxyTypeTracer
-}
-
-// IsForRetrier returns true if tag for retrier setting.
-func (c *CommonTag) IsForRetrier() bool {
-	return c.ptype == ProxyTypeRetrier
-}
-
-func (c *CommonTag) IsForCustom() bool {
-	return c.ptype == ProxyTypeCustom
+func (c *CommonTag) IsForProxy(in ProxyType) bool {
+	return c.ptype == in
 }
